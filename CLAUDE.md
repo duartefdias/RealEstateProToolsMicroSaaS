@@ -805,34 +805,26 @@ export const updateUserSegment = (userId: string) => {
 ### Color Palette (Professional Real Estate Theme)
 ```css
 :root {
-  /* Primary brand colors */
-  --color-primary-50: #f0f9ff;   /* Light blue - trust, professionalism */
-  --color-primary-500: #0ea5e9;  /* Blue - primary brand */
-  --color-primary-700: #0369a1;  /* Dark blue - CTA buttons */
-  
-  /* Secondary colors */
-  --color-accent-50: #fefce8;    /* Light yellow - highlights */
-  --color-accent-500: #eab308;   /* Gold - premium features */
-  
-  /* Neutral grays */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-500: #6b7280;
-  --color-gray-900: #111827;
+  /* Real Estate Pro Tools Brand Colors - Blue Palette */
+  --yale-blue: #134074;      /* Yale Blue - Primary brand */
+  --berkeley-blue: #13315c;  /* Berkeley Blue - Secondary */
+  --oxford-blue: #0b2545;    /* Oxford Blue - Dark accent */
+  --powder-blue: #8da9c4;    /* Powder Blue - Light accent */
+  --mint-cream: #eef4ed;     /* Mint Cream - Background accent */
   
   /* Status colors */
-  --color-success: #10b981;      /* Green - positive results */
-  --color-warning: #f59e0b;      /* Orange - usage warnings */
-  --color-error: #ef4444;        /* Red - errors, limits */
+  --success: #10b981;        /* Green - positive results */
+  --warning: #f59e0b;        /* Orange - usage warnings */
+  --error: #ef4444;          /* Red - errors, limits */
 }
 ```
 
 ### Typography
 ```css
 /* Font stack: Professional and readable */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
 
-.font-primary { font-family: 'Inter', system-ui, sans-serif; }
+.font-primary { font-family: 'League Spartan', system-ui, sans-serif; }
 
 /* Typography scale */
 .text-display { font-size: 3.5rem; font-weight: 700; }

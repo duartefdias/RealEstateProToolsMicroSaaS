@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -7,7 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'League Spartan', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -47,94 +46,86 @@
 :root {
   --radius: 0.625rem;
   
-  /* Real Estate Pro Tools Brand Colors */
-  /* Primary brand colors - Blue (trust, professionalism) */
-  --primary-50: #f0f9ff;     /* Light blue */
-  --primary-500: #0ea5e9;    /* Blue - primary brand */
-  --primary-700: #0369a1;    /* Dark blue - CTA buttons */
-  
-  /* Secondary colors - Gold (premium features) */
-  --accent-50: #fefce8;      /* Light yellow - highlights */
-  --accent-500: #eab308;     /* Gold - premium features */
-  
-  /* Neutral grays */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-500: #6b7280;
-  --gray-900: #111827;
+  /* Real Estate Pro Tools Brand Colors - Blue Palette */
+  /* Primary brand colors */
+  --yale-blue: #134074;      /* Yale Blue - Primary brand */
+  --berkeley-blue: #13315c;  /* Berkeley Blue - Secondary */
+  --oxford-blue: #0b2545;    /* Oxford Blue - Dark accent */
+  --powder-blue: #8da9c4;    /* Powder Blue - Light accent */
+  --mint-cream: #eef4ed;     /* Mint Cream - Background accent */
   
   /* Status colors */
   --success: #10b981;        /* Green - positive results */
   --warning: #f59e0b;        /* Orange - usage warnings */
   --error: #ef4444;          /* Red - errors, limits */
   
-  /* Semantic colors using OKLCH */
-  --background: oklch(1 0 0);                    /* White */
-  --foreground: oklch(0.145 0 0);                /* Gray 900 */
-  --card: oklch(1 0 0);                          /* White */
-  --card-foreground: oklch(0.145 0 0);           /* Gray 900 */
-  --popover: oklch(1 0 0);                       /* White */
-  --popover-foreground: oklch(0.145 0 0);        /* Gray 900 */
-  --primary: oklch(0.612 0.134 232.47);          /* Blue 500 - #0ea5e9 */
-  --primary-foreground: oklch(1 0 0);            /* White */
-  --secondary: oklch(0.971 0.013 106.75);        /* Gray 50 */
-  --secondary-foreground: oklch(0.145 0 0);      /* Gray 900 */
-  --muted: oklch(0.97 0.002 106.75);             /* Gray 100 */
-  --muted-foreground: oklch(0.556 0.014 237.84); /* Gray 500 */
-  --accent: oklch(0.801 0.134 86.58);            /* Gold 500 - #eab308 */
-  --accent-foreground: oklch(0.145 0 0);         /* Gray 900 */
-  --destructive: oklch(0.628 0.258 27.33);       /* Red 500 - #ef4444 */
-  --border: oklch(0.956 0.006 106.75);           /* Gray 200 */
-  --input: oklch(0.956 0.006 106.75);            /* Gray 200 */
-  --ring: oklch(0.612 0.134 232.47);             /* Blue 500 */
-  --chart-1: oklch(0.628 0.258 27.33);           /* Red */
-  --chart-2: oklch(0.612 0.134 232.47);          /* Blue */
-  --chart-3: oklch(0.696 0.17 142.5);            /* Green */
-  --chart-4: oklch(0.801 0.134 86.58);           /* Gold */
-  --chart-5: oklch(0.556 0.14 302.71);           /* Purple */
-  --sidebar: oklch(1 0 0);                       /* White */
-  --sidebar-foreground: oklch(0.145 0 0);        /* Gray 900 */
-  --sidebar-primary: oklch(0.612 0.134 232.47);  /* Blue 500 */
-  --sidebar-primary-foreground: oklch(1 0 0);    /* White */
-  --sidebar-accent: oklch(0.971 0.013 106.75);   /* Gray 50 */
-  --sidebar-accent-foreground: oklch(0.145 0 0); /* Gray 900 */
-  --sidebar-border: oklch(0.956 0.006 106.75);   /* Gray 200 */
-  --sidebar-ring: oklch(0.612 0.134 232.47);     /* Blue 500 */
+  /* Semantic colors using new palette */
+  --background: oklch(from var(--mint-cream) l c h);     /* Mint cream background */
+  --foreground: oklch(from var(--oxford-blue) l c h);    /* Oxford blue text */
+  --card: oklch(1 0 0);                                  /* White cards */
+  --card-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --popover: oklch(1 0 0);                               /* White popover */
+  --popover-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --primary: oklch(from var(--yale-blue) l c h);         /* Yale blue primary */
+  --primary-foreground: oklch(1 0 0);                    /* White text on primary */
+  --secondary: oklch(from var(--powder-blue) l c h);     /* Powder blue secondary */
+  --secondary-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --muted: oklch(from var(--mint-cream) l c h);          /* Mint cream muted */
+  --muted-foreground: oklch(from var(--berkeley-blue) l c h); /* Berkeley blue muted text */
+  --accent: oklch(from var(--powder-blue) l c h);        /* Powder blue accent */
+  --accent-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --destructive: oklch(0.628 0.258 27.33);               /* Red for destructive actions */
+  --border: oklch(from var(--powder-blue) calc(l + 0.2) calc(c * 0.3) h); /* Light powder blue border */
+  --input: oklch(from var(--mint-cream) calc(l - 0.02) c h); /* Slightly darker mint cream */
+  --ring: oklch(from var(--yale-blue) l c h);            /* Yale blue focus ring */
+  --chart-1: oklch(from var(--yale-blue) l c h);         /* Yale blue */
+  --chart-2: oklch(from var(--berkeley-blue) l c h);     /* Berkeley blue */
+  --chart-3: oklch(from var(--oxford-blue) l c h);       /* Oxford blue */
+  --chart-4: oklch(from var(--powder-blue) l c h);       /* Powder blue */
+  --chart-5: oklch(0.696 0.17 142.5);                    /* Green accent */
+  --sidebar: oklch(from var(--mint-cream) l c h);        /* Mint cream sidebar */
+  --sidebar-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --sidebar-primary: oklch(from var(--yale-blue) l c h); /* Yale blue primary */
+  --sidebar-primary-foreground: oklch(1 0 0);            /* White text */
+  --sidebar-accent: oklch(from var(--powder-blue) l c h); /* Powder blue accent */
+  --sidebar-accent-foreground: oklch(from var(--oxford-blue) l c h); /* Oxford blue text */
+  --sidebar-border: oklch(from var(--powder-blue) calc(l + 0.2) calc(c * 0.3) h); /* Light border */
+  --sidebar-ring: oklch(from var(--yale-blue) l c h);    /* Yale blue ring */
 }
 
 .dark {
   /* Dark mode using brand colors */
-  --background: oklch(0.145 0 0);                /* Gray 900 */
-  --foreground: oklch(0.985 0 0);                /* Near white */
-  --card: oklch(0.205 0 0);                      /* Darker gray */
-  --card-foreground: oklch(0.985 0 0);           /* Near white */
-  --popover: oklch(0.205 0 0);                   /* Darker gray */
-  --popover-foreground: oklch(0.985 0 0);        /* Near white */
-  --primary: oklch(0.612 0.134 232.47);          /* Blue 500 - maintains brand */
-  --primary-foreground: oklch(1 0 0);            /* White */
-  --secondary: oklch(0.269 0 0);                 /* Dark gray */
-  --secondary-foreground: oklch(0.985 0 0);      /* Near white */
-  --muted: oklch(0.269 0 0);                     /* Dark gray */
-  --muted-foreground: oklch(0.708 0 0);          /* Lighter gray */
-  --accent: oklch(0.801 0.134 86.58);            /* Gold 500 - maintains brand */
-  --accent-foreground: oklch(0.145 0 0);         /* Gray 900 */
-  --destructive: oklch(0.704 0.191 22.216);      /* Red for dark mode */
-  --border: oklch(1 0 0 / 10%);                  /* Subtle border */
-  --input: oklch(1 0 0 / 15%);                   /* Input background */
-  --ring: oklch(0.612 0.134 232.47);             /* Blue 500 */
-  --chart-1: oklch(0.628 0.258 27.33);           /* Red */
-  --chart-2: oklch(0.612 0.134 232.47);          /* Blue */
-  --chart-3: oklch(0.696 0.17 142.5);            /* Green */
-  --chart-4: oklch(0.801 0.134 86.58);           /* Gold */
-  --chart-5: oklch(0.556 0.14 302.71);           /* Purple */
-  --sidebar: oklch(0.205 0 0);                   /* Dark sidebar */
-  --sidebar-foreground: oklch(0.985 0 0);        /* Light text */
-  --sidebar-primary: oklch(0.612 0.134 232.47);  /* Blue 500 */
-  --sidebar-primary-foreground: oklch(1 0 0);    /* White */
-  --sidebar-accent: oklch(0.269 0 0);            /* Dark accent */
-  --sidebar-accent-foreground: oklch(0.985 0 0); /* Light text */
-  --sidebar-border: oklch(1 0 0 / 10%);          /* Subtle border */
-  --sidebar-ring: oklch(0.612 0.134 232.47);     /* Blue 500 */
+  --background: oklch(from var(--oxford-blue) l c h);         /* Oxford blue background */
+  --foreground: oklch(from var(--mint-cream) l c h);          /* Mint cream text */
+  --card: oklch(from var(--berkeley-blue) l c h);             /* Berkeley blue cards */
+  --card-foreground: oklch(from var(--mint-cream) l c h);     /* Mint cream text */
+  --popover: oklch(from var(--berkeley-blue) l c h);          /* Berkeley blue popover */
+  --popover-foreground: oklch(from var(--mint-cream) l c h);  /* Mint cream text */
+  --primary: oklch(from var(--yale-blue) calc(l + 0.1) c h);  /* Slightly lighter Yale blue */
+  --primary-foreground: oklch(1 0 0);                         /* White text */
+  --secondary: oklch(from var(--powder-blue) calc(l - 0.3) c h); /* Darker powder blue */
+  --secondary-foreground: oklch(from var(--mint-cream) l c h); /* Mint cream text */
+  --muted: oklch(from var(--berkeley-blue) calc(l + 0.05) c h); /* Slightly lighter Berkeley blue */
+  --muted-foreground: oklch(from var(--powder-blue) l c h);   /* Powder blue muted text */
+  --accent: oklch(from var(--powder-blue) l c h);             /* Powder blue accent */
+  --accent-foreground: oklch(from var(--oxford-blue) l c h);  /* Oxford blue text */
+  --destructive: oklch(0.704 0.191 22.216);                  /* Red for destructive actions */
+  --border: oklch(from var(--berkeley-blue) calc(l + 0.1) calc(c * 0.5) h); /* Subtle Berkeley blue border */
+  --input: oklch(from var(--berkeley-blue) calc(l + 0.05) c h); /* Slightly lighter input */
+  --ring: oklch(from var(--yale-blue) calc(l + 0.1) c h);     /* Lighter Yale blue ring */
+  --chart-1: oklch(from var(--yale-blue) calc(l + 0.1) c h);  /* Yale blue */
+  --chart-2: oklch(from var(--berkeley-blue) calc(l + 0.1) c h); /* Berkeley blue */
+  --chart-3: oklch(from var(--powder-blue) l c h);            /* Powder blue */
+  --chart-4: oklch(from var(--mint-cream) calc(l - 0.1) c h); /* Darker mint cream */
+  --chart-5: oklch(0.696 0.17 142.5);                        /* Green accent */
+  --sidebar: oklch(from var(--berkeley-blue) l c h);          /* Berkeley blue sidebar */
+  --sidebar-foreground: oklch(from var(--mint-cream) l c h);  /* Mint cream text */
+  --sidebar-primary: oklch(from var(--yale-blue) calc(l + 0.1) c h); /* Yale blue primary */
+  --sidebar-primary-foreground: oklch(1 0 0);                 /* White text */
+  --sidebar-accent: oklch(from var(--powder-blue) calc(l - 0.2) c h); /* Darker powder blue */
+  --sidebar-accent-foreground: oklch(from var(--mint-cream) l c h); /* Mint cream text */
+  --sidebar-border: oklch(from var(--berkeley-blue) calc(l + 0.1) calc(c * 0.5) h); /* Subtle border */
+  --sidebar-ring: oklch(from var(--yale-blue) calc(l + 0.1) c h); /* Yale blue ring */
 }
 
 @layer base {
