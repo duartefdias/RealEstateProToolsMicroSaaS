@@ -1,0 +1,17 @@
+{
+  "calculators": {
+    "sell-house": {
+      "title": "Calculadora de Custos de Venda",
+      "propertyValue": "Valor do Imóvel",
+      "location": "Localização",
+      "results": {
+        "totalCosts": "Custos Totais",
+        "netProceeds": "Valor Líquido"
+      }
+    }
+  },
+  "usage": {
+    "limitReached": "Limite diário atingido. Registe-se para mais cálculos.",
+    "remaining": "Restam {{count}} cálculos hoje"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "calculators": {
+    "sell-house": {
+      "title": "House Selling Cost Calculator",
+      "propertyValue": "Property Value",
+      "location": "Location",
+      "results": {
+        "totalCosts": "Total Costs",
+        "netProceeds": "Net Proceeds"
+      }
+    }
+  },
+  "usage": {
+    "limitReached": "Daily limit reached. Register for more calculations.",
+    "remaining": "{{count}} calculations remaining today"
+  }
+}

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -45,71 +46,95 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Real Estate Pro Tools Brand Colors */
+  /* Primary brand colors - Blue (trust, professionalism) */
+  --primary-50: #f0f9ff;     /* Light blue */
+  --primary-500: #0ea5e9;    /* Blue - primary brand */
+  --primary-700: #0369a1;    /* Dark blue - CTA buttons */
+  
+  /* Secondary colors - Gold (premium features) */
+  --accent-50: #fefce8;      /* Light yellow - highlights */
+  --accent-500: #eab308;     /* Gold - premium features */
+  
+  /* Neutral grays */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-500: #6b7280;
+  --gray-900: #111827;
+  
+  /* Status colors */
+  --success: #10b981;        /* Green - positive results */
+  --warning: #f59e0b;        /* Orange - usage warnings */
+  --error: #ef4444;          /* Red - errors, limits */
+  
+  /* Semantic colors using OKLCH */
+  --background: oklch(1 0 0);                    /* White */
+  --foreground: oklch(0.145 0 0);                /* Gray 900 */
+  --card: oklch(1 0 0);                          /* White */
+  --card-foreground: oklch(0.145 0 0);           /* Gray 900 */
+  --popover: oklch(1 0 0);                       /* White */
+  --popover-foreground: oklch(0.145 0 0);        /* Gray 900 */
+  --primary: oklch(0.612 0.134 232.47);          /* Blue 500 - #0ea5e9 */
+  --primary-foreground: oklch(1 0 0);            /* White */
+  --secondary: oklch(0.971 0.013 106.75);        /* Gray 50 */
+  --secondary-foreground: oklch(0.145 0 0);      /* Gray 900 */
+  --muted: oklch(0.97 0.002 106.75);             /* Gray 100 */
+  --muted-foreground: oklch(0.556 0.014 237.84); /* Gray 500 */
+  --accent: oklch(0.801 0.134 86.58);            /* Gold 500 - #eab308 */
+  --accent-foreground: oklch(0.145 0 0);         /* Gray 900 */
+  --destructive: oklch(0.628 0.258 27.33);       /* Red 500 - #ef4444 */
+  --border: oklch(0.956 0.006 106.75);           /* Gray 200 */
+  --input: oklch(0.956 0.006 106.75);            /* Gray 200 */
+  --ring: oklch(0.612 0.134 232.47);             /* Blue 500 */
+  --chart-1: oklch(0.628 0.258 27.33);           /* Red */
+  --chart-2: oklch(0.612 0.134 232.47);          /* Blue */
+  --chart-3: oklch(0.696 0.17 142.5);            /* Green */
+  --chart-4: oklch(0.801 0.134 86.58);           /* Gold */
+  --chart-5: oklch(0.556 0.14 302.71);           /* Purple */
+  --sidebar: oklch(1 0 0);                       /* White */
+  --sidebar-foreground: oklch(0.145 0 0);        /* Gray 900 */
+  --sidebar-primary: oklch(0.612 0.134 232.47);  /* Blue 500 */
+  --sidebar-primary-foreground: oklch(1 0 0);    /* White */
+  --sidebar-accent: oklch(0.971 0.013 106.75);   /* Gray 50 */
+  --sidebar-accent-foreground: oklch(0.145 0 0); /* Gray 900 */
+  --sidebar-border: oklch(0.956 0.006 106.75);   /* Gray 200 */
+  --sidebar-ring: oklch(0.612 0.134 232.47);     /* Blue 500 */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode using brand colors */
+  --background: oklch(0.145 0 0);                /* Gray 900 */
+  --foreground: oklch(0.985 0 0);                /* Near white */
+  --card: oklch(0.205 0 0);                      /* Darker gray */
+  --card-foreground: oklch(0.985 0 0);           /* Near white */
+  --popover: oklch(0.205 0 0);                   /* Darker gray */
+  --popover-foreground: oklch(0.985 0 0);        /* Near white */
+  --primary: oklch(0.612 0.134 232.47);          /* Blue 500 - maintains brand */
+  --primary-foreground: oklch(1 0 0);            /* White */
+  --secondary: oklch(0.269 0 0);                 /* Dark gray */
+  --secondary-foreground: oklch(0.985 0 0);      /* Near white */
+  --muted: oklch(0.269 0 0);                     /* Dark gray */
+  --muted-foreground: oklch(0.708 0 0);          /* Lighter gray */
+  --accent: oklch(0.801 0.134 86.58);            /* Gold 500 - maintains brand */
+  --accent-foreground: oklch(0.145 0 0);         /* Gray 900 */
+  --destructive: oklch(0.704 0.191 22.216);      /* Red for dark mode */
+  --border: oklch(1 0 0 / 10%);                  /* Subtle border */
+  --input: oklch(1 0 0 / 15%);                   /* Input background */
+  --ring: oklch(0.612 0.134 232.47);             /* Blue 500 */
+  --chart-1: oklch(0.628 0.258 27.33);           /* Red */
+  --chart-2: oklch(0.612 0.134 232.47);          /* Blue */
+  --chart-3: oklch(0.696 0.17 142.5);            /* Green */
+  --chart-4: oklch(0.801 0.134 86.58);           /* Gold */
+  --chart-5: oklch(0.556 0.14 302.71);           /* Purple */
+  --sidebar: oklch(0.205 0 0);                   /* Dark sidebar */
+  --sidebar-foreground: oklch(0.985 0 0);        /* Light text */
+  --sidebar-primary: oklch(0.612 0.134 232.47);  /* Blue 500 */
+  --sidebar-primary-foreground: oklch(1 0 0);    /* White */
+  --sidebar-accent: oklch(0.269 0 0);            /* Dark accent */
+  --sidebar-accent-foreground: oklch(0.985 0 0); /* Light text */
+  --sidebar-border: oklch(1 0 0 / 10%);          /* Subtle border */
+  --sidebar-ring: oklch(0.612 0.134 232.47);     /* Blue 500 */
 }
 
 @layer base {
