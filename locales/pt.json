@@ -1,14 +1,62 @@
 {
   "calculators": {
     "sell-house": {
-      "title": "Calculadora de Custos de Venda",
-      "propertyValue": "Valor do Imóvel",
-      "location": "Localização",
+      "title": "Calculadora de Custos de Venda de Casa",
+      "subtitle": "Calcule todos os custos associados à venda do seu imóvel",
+      "inputs": {
+        "valorVenda": "Valor de Venda",
+        "valorVendaPlaceholder": "Ex: 350000",
+        "valorVendaHelp": "Valor estimado de venda do imóvel",
+        "comissaoPercentagem": "Comissão Imobiliária (%)",
+        "comissaoPlaceholder": "Ex: 5.5",
+        "comissaoHelp": "Percentagem da comissão (normalmente 5-6%)",
+        "valorHipoteca": "Valor da Hipoteca",
+        "valorHipotecaPlaceholder": "Ex: 200000",
+        "valorHipotecaHelp": "Valor em dívida da hipoteca (0 se não tem)",
+        "tipoTaxa": "Tipo de Taxa da Hipoteca",
+        "tipoTaxaVariavel": "Taxa Variável (0,5%)",
+        "tipoTaxaFixa": "Taxa Fixa (2%)",
+        "tipoTaxaHelp": "Tipo de taxa do seu contrato de hipoteca"
+      },
       "results": {
-        "totalCosts": "Custos Totais",
-        "netProceeds": "Valor Líquido"
+        "title": "Resultados da Simulação",
+        "receitaLiquida": "Receita Líquida",
+        "receitaLiquidaHelp": "Valor que recebe após todos os custos",
+        "custoTotal": "Custo Total",
+        "custoTotalHelp": "Soma de todos os custos da venda",
+        "breakdown": {
+          "title": "Discriminação de Custos",
+          "honorarios": "Honorários Imobiliários",
+          "honorariosComissao": "Comissão da Imobiliária",
+          "honorariosIva": "IVA sobre Comissão (23%)",
+          "honorariosTotal": "Total Honorários",
+          "liquidacao": "Liquidação da Hipoteca",
+          "liquidacaoCapital": "Capital em Dívida",
+          "liquidacaoComissao": "Comissão de Amortização",
+          "liquidacaoImposto": "Imposto Selo (0,8%)",
+          "liquidacaoTotal": "Total Liquidação"
+        }
+      },
+      "cta": {
+        "calculate": "Calcular Custos",
+        "recalculate": "Recalcular",
+        "export": "Exportar Relatório"
+      },
+      "warnings": {
+        "estimates": "Valores estimativos - Confirme com entidades competentes",
+        "professional": "Para valores finais, consulte AT e entidade bancária"
       }
     }
+  },
+  "common": {
+    "currency": "€",
+    "required": "Obrigatório",
+    "optional": "Opcional",
+    "calculate": "Calcular",
+    "clear": "Limpar",
+    "loading": "A calcular...",
+    "error": "Erro no cálculo",
+    "tryAgain": "Tente novamente"
   },
   "usage": {
     "limitReached": "Limite diário atingido. Registe-se para mais cálculos.",

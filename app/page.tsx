@@ -267,7 +267,7 @@ export default function HomePage() {
             <div>
               <h3 className="text-foreground font-medium mb-4">Calculators</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-foreground">House Selling</a></li>
+                <li><a href="/calculators/sell-house" className="text-muted-foreground hover:text-foreground">House Selling</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">House Buying</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">Mortgage Simulator</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-foreground">Rental Investment</a></li>
