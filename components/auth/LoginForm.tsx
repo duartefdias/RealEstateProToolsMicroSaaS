@@ -17,12 +17,12 @@ import { useAuth } from '@/lib/auth/context'
 const loginSchema = z.object({
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .min(1, 'Email é obrigatório')
+    .email('Por favor introduza um endereço de email válido'),
   password: z
     .string()
-    .min(1, 'Password is required')
-    .min(6, 'Password must be at least 6 characters'),
+    .min(1, 'Palavra-passe é obrigatória')
+    .min(6, 'A palavra-passe deve ter pelo menos 6 caracteres'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -64,7 +64,7 @@ export function LoginForm() {
       router.push(redirect)
       router.refresh()
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      setError('Ocorreu um erro inesperado. Por favor tente novamente.')
     } finally {
       setIsLoading(false)
     }
@@ -84,20 +84,20 @@ export function LoginForm() {
 
       // OAuth redirect will be handled automatically
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      setError('Ocorreu um erro inesperado. Por favor tente novamente.')
       setIsGoogleLoading(false)
     }
   }
 
   const getErrorMessage = (errorMessage: string) => {
     if (errorMessage.includes('Invalid login credentials')) {
-      return 'Invalid email or password. Please check your credentials and try again.'
+      return 'Email ou palavra-passe inválidos. Por favor verifique as suas credenciais e tente novamente.'
     }
     if (errorMessage.includes('Email not confirmed')) {
-      return 'Please check your email and click the confirmation link before signing in.'
+      return 'Por favor verifique o seu email e clique no link de confirmação antes de iniciar sessão.'
     }
     if (errorMessage.includes('Too many requests')) {
-      return 'Too many login attempts. Please wait a few minutes before trying again.'
+      return 'Demasiadas tentativas de login. Por favor aguarde alguns minutos antes de tentar novamente.'
     }
     return errorMessage
   }
@@ -107,26 +107,26 @@ export function LoginForm() {
     
     switch (error) {
       case 'auth_callback_failed':
-        return 'Authentication failed. Please try signing in again.'
+        return 'Falha na autenticação. Por favor tente iniciar sessão novamente.'
       case 'auth_callback_exception':
-        return 'An error occurred during authentication. Please try again.'
+        return 'Ocorreu um erro durante a autenticação. Por favor tente novamente.'
       case 'no_auth_code':
-        return 'Authentication was incomplete. Please try signing in again.'
+        return 'A autenticação ficou incompleta. Por favor tente iniciar sessão novamente.'
       case 'auth_failed':
-        return 'Authentication failed. Please try signing in again.'
+        return 'Falha na autenticação. Por favor tente iniciar sessão novamente.'
       default:
-        return 'An authentication error occurred.'
+        return 'Ocorreu um erro de autenticação.'
     }
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          Sign In
+          Iniciar Sessão
         </CardTitle>
         <CardDescription className="text-center">
-          Enter your email and password to access your account
+          Introduza o seu email e palavra-passe para aceder à sua conta
         </CardDescription>
       </CardHeader>
       
@@ -160,7 +160,7 @@ export function LoginForm() {
           ) : (
             <Icons.google className="mr-2 h-4 w-4" />
           )}
-          Continue with Google
+          Continuar com Google
         </Button>
 
         <div className="relative">
@@ -169,7 +169,7 @@ export function LoginForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
+              Ou continuar com email
             </span>
           </div>
         </div>
@@ -181,7 +181,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="nome@exemplo.com"
               autoComplete="email"
               disabled={isLoading || isGoogleLoading}
               {...form.register('email')}
@@ -194,11 +194,11 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Palavra-passe</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Introduza a sua palavra-passe"
               autoComplete="current-password"
               disabled={isLoading || isGoogleLoading}
               {...form.register('password')}
@@ -215,7 +215,7 @@ export function LoginForm() {
               href="/auth/forgot-password"
               className="text-sm text-primary hover:underline"
             >
-              Forgot your password?
+              Esqueceu-se da palavra-passe?
             </Link>
           </div>
 
@@ -225,19 +225,19 @@ export function LoginForm() {
             disabled={isLoading || isGoogleLoading}
           >
             {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In
+            Iniciar Sessão
           </Button>
         </form>
       </CardContent>
       
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-center text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          Não tem uma conta?{' '}
           <Link
             href="/auth/signup"
             className="text-primary hover:underline font-medium"
           >
-            Sign up
+            Registar-se
           </Link>
         </div>
       </CardFooter>

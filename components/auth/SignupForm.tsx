@@ -18,27 +18,27 @@ import { useAuth } from '@/lib/auth/context'
 const signupSchema = z.object({
   fullName: z
     .string()
-    .min(2, 'Full name must be at least 2 characters')
-    .max(50, 'Full name must be less than 50 characters'),
+    .min(2, 'O nome completo deve ter pelo menos 2 caracteres')
+    .max(50, 'O nome completo deve ter menos de 50 caracteres'),
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .min(1, 'Email é obrigatório')
+    .email('Por favor introduza um endereço de email válido'),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters')
+    .min(8, 'A palavra-passe deve ter pelo menos 8 caracteres')
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      'A palavra-passe deve conter pelo menos uma letra maiúscula, uma minúscula e um número'
     ),
   confirmPassword: z
     .string()
-    .min(1, 'Please confirm your password'),
+    .min(1, 'Por favor confirme a sua palavra-passe'),
   acceptTerms: z
     .boolean()
-    .refine((val) => val === true, 'You must accept the terms and conditions'),
+    .refine((val) => val === true, 'Deve aceitar os termos e condições'),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "As palavras-passe não coincidem",
   path: ['confirmPassword'],
 })
 
@@ -80,7 +80,7 @@ export function SignupForm() {
       // Successful signup
       setSuccess(true)
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      setError('Ocorreu um erro inesperado. Por favor tente novamente.')
     } finally {
       setIsLoading(false)
     }
@@ -100,36 +100,36 @@ export function SignupForm() {
 
       // OAuth redirect will be handled automatically
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      setError('Ocorreu um erro inesperado. Por favor tente novamente.')
       setIsGoogleLoading(false)
     }
   }
 
   const getErrorMessage = (errorMessage: string) => {
     if (errorMessage.includes('User already registered')) {
-      return 'An account with this email already exists. Please sign in instead.'
+      return 'Já existe uma conta com este email. Por favor inicie sessão.'
     }
     if (errorMessage.includes('Password should be at least')) {
-      return 'Password must be at least 6 characters long.'
+      return 'A palavra-passe deve ter pelo menos 6 caracteres.'
     }
     if (errorMessage.includes('Invalid email')) {
-      return 'Please enter a valid email address.'
+      return 'Por favor introduza um endereço de email válido.'
     }
     if (errorMessage.includes('Signup requires a valid password')) {
-      return 'Please enter a valid password.'
+      return 'Por favor introduza uma palavra-passe válida.'
     }
     return errorMessage
   }
 
   if (success) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center text-green-600">
-            Check Your Email
+            Verifique o Seu Email
           </CardTitle>
           <CardDescription className="text-center">
-            We&apos;ve sent a confirmation link to your email address
+            Enviámos um link de confirmação para o seu endereço de email
           </CardDescription>
         </CardHeader>
         
@@ -137,8 +137,8 @@ export function SignupForm() {
           <Alert>
             <Icons.mail className="h-4 w-4" />
             <AlertDescription>
-              Please check your email and click the confirmation link to activate your account.
-              Don&apos;t forget to check your spam folder!
+              Por favor verifique o seu email e clique no link de confirmação para ativar a sua conta.
+              Não se esqueça de verificar a pasta de spam!
             </AlertDescription>
           </Alert>
           
@@ -147,7 +147,7 @@ export function SignupForm() {
             className="w-full"
             onClick={() => router.push('/auth/login')}
           >
-            Return to Sign In
+            Voltar ao Iniciar Sessão
           </Button>
         </CardContent>
       </Card>
@@ -155,13 +155,13 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          Create Account
+          Criar Conta
         </CardTitle>
         <CardDescription className="text-center">
-          Get started with your Real Estate Pro Tools account
+          Comece com a sua conta Real Estate Pro Tools
         </CardDescription>
       </CardHeader>
       
@@ -186,7 +186,7 @@ export function SignupForm() {
           ) : (
             <Icons.google className="mr-2 h-4 w-4" />
           )}
-          Continue with Google
+          Continuar com Google
         </Button>
 
         <div className="relative">
@@ -195,7 +195,7 @@ export function SignupForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
+              Ou continuar com email
             </span>
           </div>
         </div>
@@ -203,11 +203,11 @@ export function SignupForm() {
         {/* Email/Password Form */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">Nome Completo</Label>
             <Input
               id="fullName"
               type="text"
-              placeholder="John Doe"
+              placeholder="João Silva"
               autoComplete="name"
               disabled={isLoading || isGoogleLoading}
               {...form.register('fullName')}
@@ -224,7 +224,7 @@ export function SignupForm() {
             <Input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="nome@exemplo.com"
               autoComplete="email"
               disabled={isLoading || isGoogleLoading}
               {...form.register('email')}
@@ -237,11 +237,11 @@ export function SignupForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Palavra-passe</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Create a strong password"
+              placeholder="Crie uma palavra-passe forte"
               autoComplete="new-password"
               disabled={isLoading || isGoogleLoading}
               {...form.register('password')}
@@ -254,11 +254,11 @@ export function SignupForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirmar Palavra-passe</Label>
             <Input
               id="confirmPassword"
               type="password"
-              placeholder="Confirm your password"
+              placeholder="Confirme a sua palavra-passe"
               autoComplete="new-password"
               disabled={isLoading || isGoogleLoading}
               {...form.register('confirmPassword')}
@@ -283,13 +283,13 @@ export function SignupForm() {
               htmlFor="acceptTerms" 
               className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              I agree to the{' '}
+              Concordo com os{' '}
               <Link href="/terms" className="text-primary hover:underline">
-                Terms of Service
+                Termos de Serviço
               </Link>{' '}
-              and{' '}
+              e{' '}
               <Link href="/privacy" className="text-primary hover:underline">
-                Privacy Policy
+                Política de Privacidade
               </Link>
             </Label>
           </div>
@@ -305,19 +305,19 @@ export function SignupForm() {
             disabled={isLoading || isGoogleLoading}
           >
             {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            Create Account
+            Criar Conta
           </Button>
         </form>
       </CardContent>
       
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-center text-muted-foreground">
-          Already have an account?{' '}
+          Já tem uma conta?{' '}
           <Link
             href="/auth/login"
             className="text-primary hover:underline font-medium"
           >
-            Sign in
+            Iniciar sessão
           </Link>
         </div>
       </CardFooter>

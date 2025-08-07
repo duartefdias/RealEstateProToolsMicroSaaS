@@ -32,7 +32,7 @@ export default function MainNavbar() {
             <Calculator className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Real Estate Pro Tools</h1>
-              <p className="text-xs text-muted-foreground">Professional Real Estate Tools</p>
+              <p className="text-xs text-muted-foreground">Ferramentas Profissionais de Imobiliário</p>
             </div>
           </Link>
           
@@ -150,10 +150,10 @@ export default function MainNavbar() {
               /* Unauthenticated User Buttons */
               <div className="flex items-center space-x-3">
                 <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link href="/auth/login">Sign In</Link>
+                  <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/auth/signup">Registar-se</Link>
                 </Button>
               </div>
             )}
