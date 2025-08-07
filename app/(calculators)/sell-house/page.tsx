@@ -61,11 +61,6 @@ export default function SellHousePage() {
                   Real Estate Pro Tools
                 </a>
               </li>
-              <li className="before:content-['/'] before:mx-2">
-                <a href="/calculators" className="hover:text-blue-600">
-                  Calculadoras
-                </a>
-              </li>
               <li className="before:content-['/'] before:mx-2 text-gray-900 font-medium">
                 Venda de Casa
               </li>

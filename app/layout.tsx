@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { PostHogProvider } from "@/components/common/PostHogProvider";
+import { AuthProvider } from "@/lib/auth/context";
+import MainNavbar from "@/components/MainNavbar";
 
 export const metadata: Metadata = {
   title: "Real Estate Pro Tools | Professional Real Estate Calculations",
@@ -30,7 +32,10 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <PostHogProvider>
-          {children}
+          <AuthProvider>
+            <MainNavbar />
+            {children}
+          </AuthProvider>
         </PostHogProvider>
       </body>
     </html>

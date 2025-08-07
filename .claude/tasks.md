@@ -10,30 +10,30 @@
 - [x] **1.4** Set up project folder structure as per CLAUDE.md
 - [x] **1.5** Configure TypeScript with strict settings from CLAUDE.md
 - [x] **1.6** Create environment variables template (.env.example)
-- [ ] **1.7** Set up Supabase project and get connection credentials
+- [x] **1.7** Set up Supabase project and get connection credentials
 - [x] **1.8** Initialize Supabase client configuration
-- [ ] **1.9** Set up PostHog project and get API keys
+- [x] **1.9** Set up PostHog project and get API keys
 - [x] **1.10** Configure PostHog provider and basic setup
 
 ## Phase 2: Database & Authentication 🗄️
 *Dependencies: Requires Phase 1 completion*
 
 ### Database Schema (Single Agent)
-- [ ] **2.1** Create Supabase profiles table with RLS policies
-- [ ] **2.2** Create calculations table with indexes
-- [ ] **2.3** Create clients table with user relationships
-- [ ] **2.4** Create tasks table with client relationships
-- [ ] **2.5** Create page_views table for analytics
-- [ ] **2.6** Set up Row Level Security (RLS) policies for all tables
-- [ ] **2.7** Create database helper functions and types in TypeScript
+- [x] **2.1** Create Supabase profiles table with RLS policies
+- [x] **2.2** Create calculations table with indexes
+- [x] **2.3** Create clients table with user relationships
+- [x] **2.4** Create tasks table with client relationships
+- [x] **2.5** Create page_views table for analytics
+- [x] **2.6** Set up Row Level Security (RLS) policies for all tables
+- [x] **2.7** Create database helper functions and types in TypeScript
 
 ### Authentication System (Single Agent - After 2.7)
-- [ ] **2.8** Configure Supabase Auth with email/password
-- [ ] **2.9** Create authentication middleware for route protection
-- [ ] **2.10** Build login/signup components with validation
-- [ ] **2.11** Implement user profile management
-- [ ] **2.12** Create authentication context and hooks
-- [ ] **2.13** Set up automatic profile creation on signup
+- [x] **2.8** Configure Supabase Auth with email/password or Google OAuth
+- [x] **2.9** Create authentication middleware for route protection
+- [x] **2.10** Build login/signup components with validation
+- [x] **2.11** Implement user profile management
+- [x] **2.12** Create authentication context and hooks
+- [x] **2.13** Set up automatic profile creation on signup
 
 ## Phase 3: Core Calculator Infrastructure 🔧
 *Dependencies: Requires Phase 1-2 completion*

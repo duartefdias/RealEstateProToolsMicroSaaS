@@ -1,8 +1,12 @@
+'use client'
+
 import { Calculator, Home, TrendingUp, DollarSign, PiggyBank, Building2, Calendar, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import LanguageDropdown from "@/components/LanguageDropdown";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth/context";
 
 export default function HomePage() {
+  const { user } = useAuth();
   const calculators = [
     {
       id: 'sell-house',
@@ -12,7 +16,7 @@ export default function HomePage() {
       descriptionPt: 'Calcule todos os custos associados à venda do seu imóvel em Portugal',
       icon: Home,
       estimatedSavings: '€2,000+',
-      href: '/calculators/sell-house'
+      href: '/sell-house'
     },
     {
       id: 'buy-house',
@@ -22,7 +26,7 @@ export default function HomePage() {
       descriptionPt: 'IMT, imposto de selo, custos legais e todas as taxas de compra',
       icon: Building2,
       estimatedSavings: '€1,500+',
-      href: '/calculators/buy-house'
+      href: '/buy-house'
     },
     {
       id: 'mortgage-simulator',
@@ -32,7 +36,7 @@ export default function HomePage() {
       descriptionPt: 'Taxas bancárias portuguesas, cálculos TAEG, seguros obrigatórios',
       icon: TrendingUp,
       estimatedSavings: '€500+',
-      href: '/calculators/mortgage-simulator'
+      href: '/mortgage-simulator'
     },
     {
       id: 'rental-investment',
@@ -42,7 +46,7 @@ export default function HomePage() {
       descriptionPt: 'Calcule rendimentos, despesas e retorno do investimento',
       icon: PiggyBank,
       estimatedSavings: '€1,000+',
-      href: '/calculators/rental-investment'
+      href: '/rental-investment'
     },
     {
       id: 'property-flip',
@@ -52,7 +56,7 @@ export default function HomePage() {
       descriptionPt: 'Custos de renovação, prazos e cálculos de lucro',
       icon: Calculator,
       estimatedSavings: '€3,000+',
-      href: '/calculators/property-flip'
+      href: '/property-flip'
     },
     {
       id: 'switch-house',
@@ -62,44 +66,12 @@ export default function HomePage() {
       descriptionPt: 'Calcule custos ao vender um imóvel para comprar outro',
       icon: DollarSign,
       estimatedSavings: '€2,500+',
-      href: '/calculators/switch-house'
+      href: '/switch-house'
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-2">
-              <Calculator className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Real Estate Pro Tools</h1>
-                <p className="text-xs text-muted-foreground">Professional Real Estate Tools</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Language Dropdown - Hidden on mobile */}
-              <div className="hidden sm:block">
-                <LanguageDropdown />
-              </div>
-              
-              {/* Auth Buttons */}
-              <div className="flex items-center space-x-3">
-                <button className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-                  Sign In
-                </button>
-                <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md font-medium text-sm transition-colors">
-                  Register
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Title and Description */}
@@ -271,9 +243,17 @@ export default function HomePage() {
               <p className="text-muted-foreground mb-4">
                 Quer ser notificado quando estas ferramentas estiverem disponíveis?
               </p>
-              <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-md font-medium transition-colors">
-                Notificar-me
-              </button>
+              {user ? (
+                <Button>
+                  Em desenvolvimento
+                </Button>
+              ) : (
+                <Button asChild>
+                  <Link href="/auth/signup">
+                    Registe-se para ser notificado
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -309,10 +289,10 @@ export default function HomePage() {
             <div>
               <h3 className="text-foreground font-semibold mb-4">Calculadoras</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/calculators/sell-house" className="text-muted-foreground hover:text-foreground transition-colors">Venda de Casa</Link></li>
-                <li><Link href="/calculators/buy-house" className="text-muted-foreground hover:text-foreground transition-colors">Compra de Casa</Link></li>
-                <li><Link href="/calculators/mortgage-simulator" className="text-muted-foreground hover:text-foreground transition-colors">Simulador Crédito</Link></li>
-                <li><Link href="/calculators/rental-investment" className="text-muted-foreground hover:text-foreground transition-colors">Investimento</Link></li>
+                <li><Link href="/sell-house" className="text-muted-foreground hover:text-foreground transition-colors">Venda de Casa</Link></li>
+                <li><Link href="/buy-house" className="text-muted-foreground hover:text-foreground transition-colors">Compra de Casa</Link></li>
+                <li><Link href="/mortgage-simulator" className="text-muted-foreground hover:text-foreground transition-colors">Simulador Crédito</Link></li>
+                <li><Link href="/rental-investment" className="text-muted-foreground hover:text-foreground transition-colors">Investimento</Link></li>
               </ul>
             </div>
             
@@ -357,7 +337,7 @@ export default function HomePage() {
           {/* Copyright */}
           <div className="border-t border-border mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © 2024 Real Estate Pro Tools. Todos os direitos reservados.
+              © 2025 Real Estate Pro Tools. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <span className="text-muted-foreground text-sm flex items-center space-x-1">

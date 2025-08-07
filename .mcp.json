@@ -1,0 +1,25 @@
+{
+    "mcpServers": {
+      "shadcn-ui": {
+        "command": "npx",
+        "args": [
+          "@jpisnice/shadcn-ui-mcp-server"
+        ],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+        }
+      },
+      "supabase": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@supabase/mcp-server-supabase@latest",
+          "--read-only",
+          "--project-ref=wpaguxwdahvbqmdbbjfz"
+        ],
+        "env": {
+          "SUPABASE_ACCESS_TOKEN": "sbp_12c1076e922b619d075d7ec8369c295d9004f264"
+        }
+      }
+    }
+  }
