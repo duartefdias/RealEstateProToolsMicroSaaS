@@ -81,12 +81,14 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Language Dropdown */}
-              <LanguageDropdown />
+              {/* Language Dropdown - Hidden on mobile */}
+              <div className="hidden sm:block">
+                <LanguageDropdown />
+              </div>
               
               {/* Auth Buttons */}
               <div className="flex items-center space-x-3">
-                <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <button className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
                   Sign In
                 </button>
                 <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md font-medium text-sm transition-colors">
