@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { initPostHog, trackPageView } from '@/lib/analytics/posthog'
 
@@ -8,14 +8,10 @@ interface PostHogProviderProps {
   children: React.ReactNode
 }
 
-export function PostHogProvider({ children }: PostHogProviderProps) {
+// Separate component that uses useSearchParams
+function PostHogTracker() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    // Initialize PostHog
-    initPostHog()
-  }, [])
 
   useEffect(() => {
     // Track page views on route changes
@@ -32,5 +28,21 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
     }
   }, [pathname, searchParams])
 
-  return <>{children}</>
+  return null
+}
+
+export function PostHogProvider({ children }: PostHogProviderProps) {
+  useEffect(() => {
+    // Initialize PostHog
+    initPostHog()
+  }, [])
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <PostHogTracker />
+      </Suspense>
+      {children}
+    </>
+  )
 }
