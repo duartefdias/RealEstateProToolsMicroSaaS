@@ -165,100 +165,142 @@
 - [ ] **8.3c** Include capital gains tax for short-term sales
 - [ ] **8.4c** Create PropertyFlipCalculator component
 
-### Subscription System (Single Agent - After Phase 8 calculators)
-- [ ] **8.5** Integrate Stripe payment processing
-- [ ] **8.6** Create subscription management dashboard
-- [ ] **8.7** Build upgrade/downgrade flows
-- [ ] **8.8** Implement billing webhooks
-- [ ] **8.9** Create payment history and invoices
-- [ ] **8.10** Add trial period logic
+## Phase 8: Stripe Payment Integration 💳
+*Dependencies: Requires Phase 2 completion*
 
-## Phase 9: Client Management System 👥
+### Stripe Setup & Configuration (Single Agent)
+- [ ] **8.1** Create Stripe setup documentation (docs/stripe-setup.md)
+- [ ] **8.2** Configure Stripe products and pricing in dashboard
+- [ ] **8.3** Set up Stripe webhook endpoints and environment variables
+- [ ] **8.4** Create Stripe client configuration for frontend and backend
+- [ ] **8.5** Implement Stripe customer creation on user signup
+
+### Payment Flow Implementation (Single Agent - After 8.5)
+- [ ] **8.6** Create pricing page with subscription tiers
+- [ ] **8.7** Build Stripe Checkout session creation API
+- [ ] **8.8** Implement payment success/cancel callback pages  
+- [ ] **8.9** Create subscription status middleware for route protection
+- [ ] **8.10** Build subscription management dashboard for users
+
+### Usage Limit Enforcement (Single Agent - After 8.10)
+- [ ] **8.11** Implement calculator usage blocking for free users (5/day)
+- [ ] **8.12** Create upgrade prompt modals when limits reached
+- [ ] **8.13** Build usage tracking with subscription tier integration
+- [ ] **8.14** Implement daily usage reset logic with tier-based limits
+- [ ] **8.15** Create subscription status indicators in UI
+
+### Stripe Webhooks & Billing (Single Agent - After 8.15)
+- [ ] **8.16** Implement Stripe webhook handlers for subscription events
+- [ ] **8.17** Create subscription update logic (upgrade/downgrade/cancel)
+- [ ] **8.18** Build payment history and invoice management
+- [ ] **8.19** Implement failed payment handling and retry logic
+- [ ] **8.20** Add subscription cancellation and reactivation flows
+
+### Advanced Calculators & Features (After Phase 8)
+#### Calculator 4: House Switching (Agent H)
+- [ ] **9.1a** Combine selling and buying calculations
+- [ ] **9.2a** Add timing considerations and bridge loans
+- [ ] **9.3a** Create SwitchHouseCalculator component
+- [ ] **9.4a** Build comparison display between scenarios
+
+#### Calculator 5: Rental Investment (Agent I - Parallel)
+- [ ] **9.1b** Implement rental yield calculations
+- [ ] **9.2b** Add property management costs
+- [ ] **9.3b** Include tax implications for rental income
+- [ ] **9.4b** Create RentalInvestmentCalculator component
+
+#### Calculator 6: Property Flip (Agent J - Parallel)
+- [ ] **9.1c** Calculate renovation costs estimation
+- [ ] **9.2c** Add holding costs and financing
+- [ ] **9.3c** Include capital gains tax for short-term sales
+- [ ] **9.4c** Create PropertyFlipCalculator component
+
+## Phase 10: Client Management System 👥
 *Dependencies: Requires Phase 2 completion - For Pro subscribers only*
 
 ### Client Management (Single Agent)
-- [ ] **9.1** Create client CRUD operations
-- [ ] **9.2** Build client listing and filtering
-- [ ] **9.3** Create client detail pages
-- [ ] **9.4** Implement Kanban board for client stages
-- [ ] **9.5** Add client status management
-- [ ] **9.6** Create client communication history
-- [ ] **9.7** Build client search and pagination
+- [ ] **10.1** Create client CRUD operations
+- [ ] **10.2** Build client listing and filtering
+- [ ] **10.3** Create client detail pages
+- [ ] **10.4** Implement Kanban board for client stages
+- [ ] **10.5** Add client status management
+- [ ] **10.6** Create client communication history
+- [ ] **10.7** Build client search and pagination
 
-### Task Management (Single Agent - After 9.7)
-- [ ] **9.8** Create task CRUD operations
-- [ ] **9.9** Build task assignment to clients
-- [ ] **9.10** Implement task due dates and priorities
-- [ ] **9.11** Create task completion tracking
-- [ ] **9.12** Add task filtering and sorting
-- [ ] **9.13** Build task calendar view
+### Task Management (Single Agent - After 10.7)
+- [ ] **10.8** Create task CRUD operations
+- [ ] **10.9** Build task assignment to clients
+- [ ] **10.10** Implement task due dates and priorities
+- [ ] **10.11** Create task completion tracking
+- [ ] **10.12** Add task filtering and sorting
+- [ ] **10.13** Build task calendar view
 
-## Phase 10: Email & Communication 📧
+## Phase 11: Email & Communication 📧
 *Dependencies: Requires Phase 2 completion*
 
 ### Email System (Single Agent)
-- [ ] **10.1** Configure Resend email service
-- [ ] **10.2** Create welcome email templates
-- [ ] **10.3** Build usage limit notification emails
-- [ ] **10.4** Create subscription-related email flows
-- [ ] **10.5** Implement password reset emails
-- [ ] **10.6** Add email preference management
-- [ ] **10.7** Create email analytics tracking
+- [ ] **11.1** Configure Resend email service
+- [ ] **11.2** Create welcome email templates
+- [ ] **11.3** Build usage limit notification emails
+- [ ] **11.4** Create subscription-related email flows
+- [ ] **11.5** Implement password reset emails
+- [ ] **11.6** Add email preference management
+- [ ] **11.7** Create email analytics tracking
 
-## Phase 11: Performance & Optimization ⚡
+## Phase 12: Performance & Optimization ⚡
 *Dependencies: Requires core features completion - **CAN BE PARALLELIZED***
 
 ### Performance Optimization (Agent K)
-- [ ] **11.1** Implement React Query for API caching
-- [ ] **11.2** Add image optimization and WebP conversion
-- [ ] **11.3** Implement code splitting for calculators
-- [ ] **11.4** Add service worker for offline calculation caching
-- [ ] **11.5** Optimize bundle size and remove unused imports
-- [ ] **11.6** Add loading states and skeleton screens
-- [ ] **11.7** Implement error retry mechanisms
+- [ ] **12.1** Implement React Query for API caching
+- [ ] **12.2** Add image optimization and WebP conversion
+- [ ] **12.3** Implement code splitting for calculators
+- [ ] **12.4** Add service worker for offline calculation caching
+- [ ] **12.5** Optimize bundle size and remove unused imports
+- [ ] **12.6** Add loading states and skeleton screens
+- [ ] **12.7** Implement error retry mechanisms
 
 ### SEO Optimization (Agent L - Parallel)
-- [ ] **11.8** Generate dynamic sitemaps
-- [ ] **11.9** Implement robots.txt
-- [ ] **11.10** Add Open Graph and Twitter card meta tags
-- [ ] **11.11** Create JSON-LD structured data
-- [ ] **11.12** Implement internal linking strategy
-- [ ] **11.13** Add canonical URLs
-- [ ] **11.14** Create 404 and error pages
+- [ ] **12.8** Generate dynamic sitemaps
+- [ ] **12.9** Implement robots.txt
+- [ ] **12.10** Add Open Graph and Twitter card meta tags
+- [ ] **12.11** Create JSON-LD structured data
+- [ ] **12.12** Implement internal linking strategy
+- [ ] **12.13** Add canonical URLs
+- [ ] **12.14** Create 404 and error pages
 
-## Phase 12: Testing & Quality Assurance 🧪
+## Phase 13: Testing & Quality Assurance 🧪
 *Dependencies: Requires feature completion - **CAN BE PARALLELIZED***
 
 ### Testing Setup (Agent M)
-- [ ] **12.1** Set up Jest and React Testing Library
-- [ ] **12.2** Create calculator logic unit tests
-- [ ] **12.3** Build component integration tests
-- [ ] **12.4** Add API endpoint testing
-- [ ] **12.5** Create user flow E2E tests with Playwright
-- [ ] **12.6** Test mobile responsiveness
-- [ ] **12.7** Validate accessibility compliance
+- [ ] **13.1** Set up Jest and React Testing Library
+- [ ] **13.2** Create calculator logic unit tests
+- [ ] **13.3** Build component integration tests
+- [ ] **13.4** Add API endpoint testing
+- [ ] **13.5** Create user flow E2E tests with Playwright
+- [ ] **13.6** Test mobile responsiveness
+- [ ] **13.7** Validate accessibility compliance
 
 ### Code Quality (Agent N - Parallel)
-- [ ] **12.8** Set up ESLint with strict rules
-- [ ] **12.9** Configure Prettier for code formatting
-- [ ] **12.10** Add Husky pre-commit hooks
-- [ ] **12.11** Set up TypeScript strict checking
-- [ ] **12.12** Create code review checklist
-- [ ] **12.13** Add security vulnerability scanning
-- [ ] **12.14** Performance monitoring setup
+- [ ] **13.8** Set up ESLint with strict rules
+- [ ] **13.9** Configure Prettier for code formatting
+- [ ] **13.10** Add Husky pre-commit hooks
+- [ ] **13.11** Set up TypeScript strict checking
+- [ ] **13.12** Create code review checklist
+- [ ] **13.13** Add security vulnerability scanning
+- [ ] **13.14** Performance monitoring setup
 
-## Phase 13: Deployment & DevOps 🚀
-*Dependencies: Requires Phase 12 completion*
+## Phase 14: Deployment & DevOps 🚀
+*Dependencies: Requires Phase 13 completion*
 
 ### Deployment Pipeline (Single Agent)
-- [ ] **13.1** Configure Vercel deployment settings
-- [ ] **13.2** Set up environment variables in production
-- [ ] **13.3** Configure custom domain and SSL
-- [ ] **13.4** Set up database migrations workflow
-- [ ] **13.5** Create staging environment
-- [ ] **13.6** Configure monitoring and alerts
-- [ ] **13.7** Set up automated backups
-- [ ] **13.8** Create deployment rollback procedures
+- [ ] **14.1** Configure Vercel deployment settings
+- [ ] **14.2** Set up environment variables in production
+- [ ] **14.3** Configure custom domain and SSL
+- [ ] **14.4** Set up database migrations workflow
+- [ ] **14.5** Create staging environment
+- [ ] **14.6** Configure monitoring and alerts
+- [ ] **14.7** Set up automated backups
+- [ ] **14.8** Create deployment rollback procedures
 
 ---
 

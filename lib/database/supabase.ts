@@ -1,5 +1,6 @@
 // Re-export from the new auth client
 export { createClient as createBrowserClient } from '@/lib/auth/client'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 // Create the main browser client instance
 import { createClient } from '@/lib/auth/client'
@@ -8,18 +9,20 @@ export const supabase = createClient()
 // Create Supabase client for server-side operations (admin access)
 export const createServerSupabaseClient = () => {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   
   if (!serviceRoleKey) {
     throw new Error('Missing Supabase service role key')
   }
   
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+  if (!supabaseUrl) {
+    throw new Error('Missing Supabase URL')
+  }
+  
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
-    },
-    db: {
-      schema: 'public',
     },
   })
 }
