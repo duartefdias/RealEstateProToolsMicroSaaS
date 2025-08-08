@@ -254,12 +254,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign out
   const signOut = async () => {
+    console.log('🔐 Signing out user...')
     const { error } = await supabase.auth.signOut()
     if (!error) {
       setUser(null)
       setProfile(null)
       setSession(null)
       setUsageLimit(null)
+      
+      // Redirect to home page after successful sign out
+      console.log('🔐 Sign out successful, redirecting to home page')
+      window.location.href = '/'
+    } else {
+      console.error('🔐 Sign out failed:', error)
     }
     return { error }
   }
