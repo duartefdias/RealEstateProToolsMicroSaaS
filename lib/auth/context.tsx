@@ -58,6 +58,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setSession(session)
           setUser(session?.user ?? null)
+          
+          // If we have a user, fetch their profile in the background
+          if (session?.user) {
+            console.log('🔐 Initial session found, fetching profile for:', session.user.id)
+            // Don't await - let profile load in background so UI renders immediately
+            fetchProfile(session.user.id)
+            fetchUsageLimit(session.user.id)
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
@@ -81,12 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         setUser(session?.user ?? null)
         
+        // Always set loading to false first so UI can render the user
+        setLoading(false)
+        
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          // Fetch profile when user signs in
+          // Fetch profile when user signs in (but don't block the UI)
           if (session?.user) {
             console.log('🔐 Fetching profile for user:', session.user.id)
-            await fetchProfile(session.user.id)
-            await fetchUsageLimit(session.user.id)
+            fetchProfile(session.user.id) // Don't await - let it run in background
+            fetchUsageLimit(session.user.id) // Don't await - let it run in background
           }
         } else if (event === 'SIGNED_OUT') {
           // Clear profile when user signs out
@@ -94,8 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setProfile(null)
           setUsageLimit(null)
         }
-        
-        setLoading(false)
       }
     )
 
@@ -106,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string) => {
     setProfileLoading(true)
     try {
+      console.log('🔐 Fetching profile for user ID:', userId)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -113,13 +123,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error fetching profile:', error)
+        console.error('🔐 Error fetching profile:', {
+          error: error.message,
+          code: error.code,
+          details: error.details
+        })
+        
+        // If profile doesn't exist, we'll still have user data from auth
+        // This is fine - the avatar will use the user's email initial
+        if (error.code !== 'PGRST116') {
+          // Only log non-"not found" errors as real errors
+          console.error('🔐 Unexpected profile fetch error:', error)
+        }
         return
       }
 
+      console.log('🔐 Profile fetched successfully:', {
+        hasProfile: !!data,
+        fullName: data?.full_name,
+        subscriptionTier: data?.subscription_tier
+      })
       setProfile(data)
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('🔐 Exception while fetching profile:', error)
     } finally {
       setProfileLoading(false)
     }
@@ -192,15 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         timestamp: new Date().toISOString()
       })
       
-      // Verify Supabase client is properly configured
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        console.log('🔐 Current session check before OAuth:', { hasSession: !!session })
-      } catch (sessionError) {
-        console.error('🔐 Session check error before OAuth:', sessionError)
-      }
-      
-      console.log('🔐 Calling supabase.auth.signInWithOAuth...')
+      console.log('🔐 Initiating Google OAuth sign-in...')
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -209,12 +227,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             prompt: 'select_account'
           }
         },
-      })
-      
-      console.log('🔐 OAuth call result:', {
-        hasData: !!data,
-        error: error?.message || null,
-        dataKeys: data ? Object.keys(data) : []
       })
       
       if (error) {
@@ -226,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error }
       }
       
-      console.log('🔐 OAuth initiated successfully')
+      console.log('🔐 Redirecting to Google OAuth...')
       
       // Log if we're still here after 2 seconds (redirect should happen immediately)
       setTimeout(() => {
