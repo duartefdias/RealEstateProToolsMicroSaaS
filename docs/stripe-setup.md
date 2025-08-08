@@ -13,27 +13,27 @@ The Real Estate Pro Tools application uses Stripe for subscription-based payment
 
 ### 1.1 Create Stripe Account
 1. Visit [stripe.com](https://stripe.com) and create a new account
-2. Complete business verification (required for live payments)
-3. Set up your business details:
+2. Complete business verification (required for live payments) - [Verification Guide](https://stripe.com/docs/connect/identity-verification-api)
+3. Set up your business details in [Account Settings](https://dashboard.stripe.com/settings/account):
    - Business name: "Real Estate Pro Tools" or your legal entity name
    - Business type: Software/SaaS
    - Location: Portugal (or your business location)
    - Industry: Real Estate Software
 
 ### 1.2 Enable Required Features
-1. Navigate to **Settings > Business settings**
+1. Navigate to [Settings > Business settings](https://dashboard.stripe.com/settings/account)
 2. Enable the following features:
-   - Subscriptions
-   - Customer Portal
-   - Billing
-   - Invoices
-   - Tax collection (for Portuguese VAT)
+   - [Subscriptions](https://dashboard.stripe.com/test/subscriptions) - [Setup Guide](https://stripe.com/docs/billing/subscriptions)
+   - [Customer Portal](https://dashboard.stripe.com/settings/billing/portal) - [Portal Guide](https://stripe.com/docs/billing/subscriptions/customer-portal)
+   - [Billing](https://dashboard.stripe.com/settings/billing) - [Billing Documentation](https://stripe.com/docs/billing)
+   - [Invoices](https://dashboard.stripe.com/invoices) - [Invoice Guide](https://stripe.com/docs/invoicing)
+   - [Tax collection](https://dashboard.stripe.com/settings/tax) (for Portuguese VAT) - [Tax Guide](https://stripe.com/docs/tax)
 
 ## 2. Product and Pricing Configuration
 
 ### 2.1 Create Pro Subscription Product
-1. Go to **Products** in Stripe Dashboard
-2. Click **+ Add product**
+1. Go to [**Products**](https://dashboard.stripe.com/products) in Stripe Dashboard
+2. Click **+ Add product** - [Product Creation Guide](https://stripe.com/docs/products-prices/how-products-and-prices-work)
 3. Configure the Pro subscription:
 
 ```
@@ -50,7 +50,7 @@ Pricing:
 - Price ID: Copy this for environment variables (e.g., price_1ABC123...)
 ```
 
-4. **Important**: Note down the Price ID - you'll need this for environment variables
+4. **Important**: Note down the Price ID - you'll need this for environment variables - [Price ID Guide](https://stripe.com/docs/products-prices/how-products-and-prices-work#what-is-a-price)
 
 ### 2.2 Create Additional Products (Future Features)
 For future expansions, create these additional products:
@@ -74,7 +74,7 @@ For future expansions, create these additional products:
 ## 3. Customer Portal Configuration
 
 ### 3.1 Enable Customer Portal
-1. Go to **Settings > Customer portal**
+1. Go to [**Settings > Customer portal**](https://dashboard.stripe.com/settings/billing/portal) - [Portal Setup Guide](https://stripe.com/docs/billing/subscriptions/customer-portal)
 2. Enable the portal with these settings:
 
 ```
@@ -119,8 +119,8 @@ Cancellation behavior:
 ## 4. Webhook Endpoints Configuration
 
 ### 4.1 Create Webhook Endpoint
-1. Go to **Developers > Webhooks**
-2. Click **+ Add endpoint**
+1. Go to [**Developers > Webhooks**](https://dashboard.stripe.com/webhooks) - [Webhook Guide](https://stripe.com/docs/webhooks)
+2. Click **+ Add endpoint** - [Endpoint Setup Guide](https://stripe.com/docs/webhooks/quickstart)
 3. Configure the endpoint:
 
 ```
@@ -145,7 +145,7 @@ Select events to listen to:
 ☑ customer.deleted
 ```
 
-4. **Important**: Copy the **Signing secret** - you'll need this for webhook verification
+4. **Important**: Copy the **Signing secret** - you'll need this for webhook verification - [Webhook Signatures](https://stripe.com/docs/webhooks/signatures)
 
 ### 4.2 Test Mode Webhook (Development)
 Create a separate webhook endpoint for test mode with the same configuration but using your development URL.
@@ -153,8 +153,8 @@ Create a separate webhook endpoint for test mode with the same configuration but
 ## 5. Tax Configuration (Portuguese VAT)
 
 ### 5.1 Enable Tax Collection
-1. Go to **Settings > Tax**
-2. Enable tax collection for Portugal:
+1. Go to [**Settings > Tax**](https://dashboard.stripe.com/settings/tax) - [Tax Setup Guide](https://stripe.com/docs/tax/set-up-tax)
+2. Enable tax collection for Portugal - [European Tax Guide](https://stripe.com/docs/tax/eu-tax):
 
 ```
 Tax registration:
@@ -209,7 +209,7 @@ STRIPE_COUNTRY=PT
 ## 7. Testing Setup
 
 ### 7.1 Test Cards
-Use these test cards for development:
+Use these test cards for development - [Complete Test Card List](https://stripe.com/docs/testing#cards):
 
 ```bash
 # Successful payments
@@ -229,38 +229,38 @@ Use these test cards for development:
 ```
 
 ### 7.2 Subscription Testing
-1. Create test subscriptions using test cards
-2. Test webhook events in Stripe Dashboard
-3. Verify customer portal functionality
+1. Create test subscriptions using test cards - [Testing Subscriptions](https://stripe.com/docs/billing/subscriptions/test-clocks)
+2. Test webhook events in [Stripe Dashboard](https://dashboard.stripe.com/test/webhooks) - [Webhook Testing](https://stripe.com/docs/webhooks/test)
+3. Verify customer portal functionality - [Portal Testing Guide](https://stripe.com/docs/billing/subscriptions/customer-portal#test-the-customer-portal)
 4. Test subscription cancellation and reactivation
 
 ## 8. Security Considerations
 
 ### 8.1 Webhook Security
-- Always verify webhook signatures using the signing secret
-- Use HTTPS endpoints only
+- Always verify webhook signatures using the signing secret - [Signature Verification](https://stripe.com/docs/webhooks/signatures)
+- Use HTTPS endpoints only - [Webhook Security Guide](https://stripe.com/docs/webhooks/best-practices)
 - Implement proper error handling and logging
-- Set up monitoring for failed webhook deliveries
+- Set up monitoring for failed webhook deliveries - [Webhook Monitoring](https://stripe.com/docs/webhooks/best-practices#monitoring)
 
 ### 8.2 Key Management
-- Store all keys as environment variables
+- Store all keys as environment variables - [API Key Best Practices](https://stripe.com/docs/keys#best-practices)
 - Never expose secret keys in client-side code
-- Rotate keys periodically (annually recommended)
-- Monitor key usage in Stripe Dashboard
+- Rotate keys periodically (annually recommended) - [Key Rotation Guide](https://stripe.com/docs/keys#api-key-rotation)
+- Monitor key usage in [Stripe Dashboard](https://dashboard.stripe.com/apikeys)
 
 ### 8.3 PCI Compliance
-- Use Stripe Elements or Checkout for card collection (PCI compliant)
-- Never store card details on your servers
+- Use Stripe Elements or Checkout for card collection (PCI compliant) - [PCI Compliance Guide](https://stripe.com/docs/security)
+- Never store card details on your servers - [Sensitive Data Guidelines](https://stripe.com/docs/security/guide#validating-pci-compliance)
 - Implement proper logging without sensitive data
 
 ## 9. Monitoring and Alerts
 
 ### 9.1 Stripe Dashboard Monitoring
-Set up alerts for:
-- Failed payments
+Set up alerts for in [Settings > Notifications](https://dashboard.stripe.com/settings/notifications):
+- Failed payments - [Payment Alerts Guide](https://stripe.com/docs/radar/rules#email-notifications)
 - Subscription cancellations
-- Webhook delivery failures
-- Unusual payment patterns
+- Webhook delivery failures - [Webhook Alerts](https://stripe.com/docs/webhooks/best-practices#monitoring)
+- Unusual payment patterns - [Radar Rules](https://stripe.com/docs/radar/rules)
 
 ### 9.2 Application Monitoring
 - Monitor subscription sync between Stripe and Supabase
@@ -269,16 +269,16 @@ Set up alerts for:
 
 ## 10. Go-Live Checklist
 
-Before enabling live payments:
+Before enabling live payments - [Launch Checklist](https://stripe.com/docs/development/checklist):
 
-- [ ] Complete Stripe account verification
-- [ ] Test all payment flows in test mode
-- [ ] Verify webhook endpoints are working
-- [ ] Test customer portal functionality
+- [ ] Complete Stripe account verification - [Account Verification](https://stripe.com/docs/connect/identity-verification-api)
+- [ ] Test all payment flows in test mode - [Testing Guide](https://stripe.com/docs/testing)
+- [ ] Verify webhook endpoints are working - [Webhook Testing](https://stripe.com/docs/webhooks/test)
+- [ ] Test customer portal functionality - [Portal Testing](https://stripe.com/docs/billing/subscriptions/customer-portal#test-the-customer-portal)
 - [ ] Configure proper error handling
-- [ ] Set up monitoring and alerts
+- [ ] Set up monitoring and alerts - [Monitoring Guide](https://stripe.com/docs/webhooks/best-practices#monitoring)
 - [ ] Review terms of service and privacy policy
-- [ ] Test tax calculation for Portuguese customers
+- [ ] Test tax calculation for Portuguese customers - [Tax Testing](https://stripe.com/docs/tax/testing)
 - [ ] Verify subscription sync with Supabase
 - [ ] Test usage limit enforcement after payments
 

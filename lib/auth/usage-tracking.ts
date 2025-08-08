@@ -1,4 +1,5 @@
-import { getProfile, getAnonymousUsage } from '../database'
+import { createServerSupabaseClient } from '../database/supabase'
+import { subscriptionManager } from '../payments/subscription-manager'
 
 export interface UsageCheck {
   allowed: boolean
@@ -8,6 +9,7 @@ export interface UsageCheck {
   resetTime: Date
   requiresUpgrade: boolean
   userType: 'anonymous' | 'free' | 'registered' | 'pro'
+  checkoutUrl?: string
 }
 
 export const checkUsageLimit = async (
@@ -15,61 +17,47 @@ export const checkUsageLimit = async (
   ipAddress?: string,
   sessionId?: string
 ): Promise<UsageCheck> => {
+  const supabase = createServerSupabaseClient()
+
   if (userId) {
-    // Check for registered users
-    const profile = await getProfile(userId)
-    
-    if (!profile) {
+    // For registered users, use the subscription manager
+    try {
+      const usageCheck = await subscriptionManager.checkUsageLimit(userId)
+      
+      let userType: 'free' | 'registered' | 'pro'
+      switch (usageCheck.currentTier.id) {
+        case 'pro':
+          userType = 'pro'
+          break
+        case 'registered':
+          userType = 'registered'
+          break
+        default:
+          userType = 'free'
+          break
+      }
+
+      return {
+        allowed: usageCheck.allowed,
+        remaining: usageCheck.remaining === Infinity ? Infinity : usageCheck.remaining,
+        used: 0, // This would need to be fetched from the profile
+        limit: usageCheck.currentTier.limits.dailyCalculations,
+        resetTime: usageCheck.resetTime,
+        requiresUpgrade: usageCheck.requiresUpgrade,
+        userType,
+        checkoutUrl: usageCheck.checkoutUrl
+      }
+    } catch (error) {
+      console.error('Error checking user usage limit:', error)
       return {
         allowed: false,
         remaining: 0,
         used: 0,
         limit: 0,
-        resetTime: new Date(),
+        resetTime: getNextResetTime(),
         requiresUpgrade: true,
         userType: 'free',
       }
-    }
-
-    // Determine user type and limits
-    let limit: number
-    let userType: 'free' | 'registered' | 'pro'
-    
-    switch (profile.subscription_tier) {
-      case 'pro':
-        limit = Infinity
-        userType = 'pro'
-        break
-      case 'registered':
-        limit = 10
-        userType = 'registered'
-        break
-      default:
-        limit = 5
-        userType = 'free'
-        break
-    }
-
-    // Check if we need to reset daily usage
-    const today = new Date().toISOString().split('T')[0]
-    const lastReset = profile.last_calculation_reset.toISOString().split('T')[0]
-    
-    let currentUsage = profile.daily_calculations_used
-    if (today !== lastReset) {
-      currentUsage = 0 // Usage should be reset
-    }
-
-    const remaining = limit === Infinity ? Infinity : Math.max(0, limit - currentUsage)
-    const allowed = remaining > 0
-
-    return {
-      allowed,
-      remaining,
-      used: currentUsage,
-      limit,
-      resetTime: getNextResetTime(),
-      requiresUpgrade: !allowed && profile.subscription_tier !== 'pro',
-      userType,
     }
   } else {
     // Check for anonymous users
@@ -85,18 +73,37 @@ export const checkUsageLimit = async (
       }
     }
 
-    const usage = await getAnonymousUsage(ipAddress, sessionId)
-    const limit = 5
-    const remaining = Math.max(0, limit - usage)
-    
-    return {
-      allowed: remaining > 0,
-      remaining,
-      used: usage,
-      limit,
-      resetTime: getNextResetTime(),
-      requiresUpgrade: !remaining,
-      userType: 'anonymous',
+    try {
+      const { data: usage } = await supabase.rpc('get_anonymous_usage', {
+        ip_addr: ipAddress,
+        session_id: sessionId
+      })
+
+      const limit = 5
+      const currentUsage = usage || 0
+      const remaining = Math.max(0, limit - currentUsage)
+      
+      return {
+        allowed: remaining > 0,
+        remaining,
+        used: currentUsage,
+        limit,
+        resetTime: getNextResetTime(),
+        requiresUpgrade: remaining === 0,
+        userType: 'anonymous',
+      }
+    } catch (error) {
+      console.error('Error checking anonymous usage:', error)
+      // Return safe defaults
+      return {
+        allowed: false,
+        remaining: 0,
+        used: 5,
+        limit: 5,
+        resetTime: getNextResetTime(),
+        requiresUpgrade: true,
+        userType: 'anonymous',
+      }
     }
   }
 }
