@@ -68,18 +68,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event)
+        console.log('🔐 Auth state changed:', {
+          event,
+          userId: session?.user?.id,
+          userEmail: session?.user?.email,
+          hasSession: !!session
+        })
         setSession(session)
         setUser(session?.user ?? null)
         
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           // Fetch profile when user signs in
           if (session?.user) {
+            console.log('🔐 Fetching profile for user:', session.user.id)
             await fetchProfile(session.user.id)
             await fetchUsageLimit(session.user.id)
           }
         } else if (event === 'SIGNED_OUT') {
           // Clear profile when user signs out
+          console.log('🔐 Clearing profile data after sign out')
           setProfile(null)
           setUsageLimit(null)
         }
@@ -169,13 +176,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign in with Google OAuth
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    return { error }
+    try {
+      // Use window.location.origin for local development
+      const redirectUrl = `${window.location.origin}/auth/callback`
+      
+      console.log('🔐 Initiating Google OAuth:', {
+        redirectUrl,
+        windowOrigin: window.location.origin,
+        envSiteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        timestamp: new Date().toISOString()
+      })
+      
+      // Verify Supabase client is properly configured
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔐 Current session check before OAuth:', { hasSession: !!session })
+      } catch (sessionError) {
+        console.error('🔐 Session check error before OAuth:', sessionError)
+      }
+      
+      console.log('🔐 Calling supabase.auth.signInWithOAuth...')
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            prompt: 'select_account'
+          }
+        },
+      })
+      
+      console.log('🔐 OAuth call result:', {
+        hasData: !!data,
+        error: error?.message || null,
+        dataKeys: data ? Object.keys(data) : []
+      })
+      
+      if (error) {
+        console.error('🔐 Google OAuth initiation error:', {
+          message: error.message,
+          status: error.status,
+          details: error
+        })
+        return { error }
+      }
+      
+      console.log('🔐 OAuth initiated successfully')
+      
+      // Log if we're still here after 2 seconds (redirect should happen immediately)
+      setTimeout(() => {
+        console.warn('🔐 Still on page 2 seconds after OAuth initiation - redirect may have failed')
+      }, 2000)
+      
+      return { error: null }
+    } catch (exception) {
+      console.error('🔐 Exception during Google OAuth:', exception)
+      return { error: { message: exception instanceof Error ? exception.message : 'Unknown error' } as any }
+    }
   }
 
   // Sign out

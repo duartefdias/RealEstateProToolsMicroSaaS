@@ -103,21 +103,9 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Handle auth callback route
+  // Skip middleware processing for auth callback - let the route handler deal with it
   if (url.pathname === '/auth/callback') {
-    const code = url.searchParams.get('code')
-    const next = url.searchParams.get('next') ?? '/dashboard'
-
-    if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
-      if (!error) {
-        // Successful OAuth, redirect to intended destination
-        return NextResponse.redirect(new URL(next, req.url))
-      }
-    }
-
-    // Auth failed, redirect to login
-    return NextResponse.redirect(new URL('/auth/login?error=auth_failed', req.url))
+    return res
   }
 
   return res

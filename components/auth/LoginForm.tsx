@@ -40,6 +40,7 @@ export function LoginForm() {
   const urlError = searchParams.get('error')
   const urlMessage = searchParams.get('message')
 
+
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -75,15 +76,19 @@ export function LoginForm() {
     setError(null)
 
     try {
+      console.log('🔐 Starting Google OAuth from LoginForm')
       const { error } = await signInWithGoogle()
       
       if (error) {
+        console.error('🔐 Google OAuth error in LoginForm:', error)
         setError(getErrorMessage(error.message))
         return
       }
 
+      console.log('🔐 Google OAuth initiation successful, waiting for redirect...')
       // OAuth redirect will be handled automatically
     } catch (err) {
+      console.error('🔐 Google OAuth exception in LoginForm:', err)
       setError('Ocorreu um erro inesperado. Por favor tente novamente.')
       setIsGoogleLoading(false)
     }
@@ -114,6 +119,12 @@ export function LoginForm() {
         return 'A autenticação ficou incompleta. Por favor tente iniciar sessão novamente.'
       case 'auth_failed':
         return 'Falha na autenticação. Por favor tente iniciar sessão novamente.'
+      case 'oauth_error':
+        return 'Erro de autenticação OAuth. Por favor tente novamente.'
+      case 'session_creation_failed':
+        return 'Falha ao criar a sessão. Por favor tente iniciar sessão novamente.'
+      case 'invalid_auth_code':
+        return 'Código de autenticação inválido. Por favor tente iniciar sessão novamente.'
       default:
         return 'Ocorreu um erro de autenticação.'
     }
