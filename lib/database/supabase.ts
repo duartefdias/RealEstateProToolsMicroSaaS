@@ -1,30 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
-import { Database } from './types'
-import type { SupabaseClient } from '@supabase/supabase-js'
+// Re-export from the new auth client
+export { createClient as createBrowserClient } from '@/lib/auth/client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
-}
-
-// Create Supabase client for client-side operations
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-  db: {
-    schema: 'public',
-  },
-  global: {
-    headers: {
-      'x-application': 'real-estate-pro-tools',
-    },
-  },
-})
+// Create the main browser client instance
+import { createClient } from '@/lib/auth/client'
+export const supabase = createClient()
 
 // Create Supabase client for server-side operations (admin access)
 export const createServerSupabaseClient = () => {

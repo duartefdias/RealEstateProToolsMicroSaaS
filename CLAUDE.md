@@ -31,6 +31,8 @@ A comprehensive suite of real estate calculation tools and client management fea
 - **Resend:** Professional email delivery for user notifications and marketing
 - **PostHog:** Complete product analytics, feature flags, A/B testing, and user behavior tracking
 
+IMPORTANT: Always use context7 to get the latest documentation.
+
 ### Database Schema Overview
 
 ```sql

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
-import { supabase } from '@/lib/database/supabase'
+import { createClient } from '@/lib/auth/client'
 import { Profile, UsageLimit } from '@/lib/database/types'
 
 interface AuthContextType {
@@ -43,6 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [profileLoading, setProfileLoading] = useState(false)
   const [usageLimit, setUsageLimit] = useState<UsageLimit | null>(null)
+  
+  // Create Supabase client instance
+  const supabase = createClient()
 
   // Initialize auth state
   useEffect(() => {
@@ -72,7 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           event,
           userId: session?.user?.id,
           userEmail: session?.user?.email,
-          hasSession: !!session
+          hasSession: !!session,
+          timestamp: new Date().toISOString()
         })
         setSession(session)
         setUser(session?.user ?? null)
