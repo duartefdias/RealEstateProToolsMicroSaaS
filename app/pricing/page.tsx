@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { subscriptionTiers, formatPrice } from '@/lib/payments/stripe'
 import { useAuth } from '@/lib/auth/context'
 import { PricingPlan } from '@/types/payment'
+import SubscriptionManager from '@/components/subscription/SubscriptionManager'
+import PaymentHistory from '@/components/subscription/PaymentHistory'
 
 export default function PricingPage() {
   const { user, profile } = useAuth()
@@ -81,6 +83,33 @@ export default function PricingPage() {
       loading: planIsLoading,
       text: isCurrentPlan ? 'Current Plan' : plan.ctaText
     }
+  }
+
+  // Check if user is Pro and show different content
+  const isProUser = profile?.subscription_tier === 'pro'
+
+  if (isProUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        {/* Header for Pro Users */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
+              Subscription Management
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
+              Manage your Pro subscription and view your payment history
+            </p>
+          </div>
+
+          {/* Subscription Management for Pro Users */}
+          <div className="max-w-4xl mx-auto space-y-8">
+            <SubscriptionManager />
+            <PaymentHistory />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

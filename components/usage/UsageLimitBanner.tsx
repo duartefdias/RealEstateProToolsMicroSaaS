@@ -124,7 +124,7 @@ export function UsageLimitBanner({
                 </Button>
               )}
               
-              {userType !== 'pro' && (
+              {userType === 'registered' && (
                 <Button 
                   onClick={handleUpgrade}
                   className="w-full bg-purple-600 hover:bg-purple-700"
@@ -164,7 +164,7 @@ export function UsageLimitBanner({
           </span>
         </div>
         
-        {requiresUpgrade && (
+        {requiresUpgrade && userType !== 'pro' && (
           <Button size="sm" onClick={handleUpgrade} className="h-7 text-xs px-3">
             {userType === 'anonymous' ? 'Registar' : 'Upgrade'}
           </Button>
@@ -186,7 +186,7 @@ export function UsageLimitBanner({
                 <div className="text-sm mt-1">Reinicia em {timeUntilReset}</div>
               )}
             </div>
-            {requiresUpgrade && (
+            {requiresUpgrade && userType !== 'pro' && (
               <Button size="sm" onClick={handleUpgrade} className="bg-amber-600 hover:bg-amber-700 ml-4">
                 {userType === 'anonymous' ? 'Registar' : 'Upgrade'}
                 <ArrowRight className="w-3 h-3 ml-1" />
@@ -277,7 +277,7 @@ export function UsageLimitBanner({
           )}
         </div>
 
-        {requiresUpgrade && (
+        {requiresUpgrade && userType !== 'pro' && (
           <div className="space-y-3">
             <div className={cn("p-4 rounded-lg border",
               userType === 'anonymous' ? "border-green-200 bg-green-50" : "border-purple-200 bg-purple-50"

@@ -229,6 +229,7 @@ export function CompactPricingCard({
     onUpgrade?.()
   }
 
+  // Don't show upgrade card for Pro users
   if (currentTier === 'pro') return null
 
   return (

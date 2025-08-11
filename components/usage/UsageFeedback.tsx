@@ -188,7 +188,7 @@ export function UsageNotification({
         const remaining = dailyLimit - currentUsage
         toast.warning(`Restam apenas ${remaining} cálculos hoje`, {
           duration: 3000,
-          ...(onUpgrade && {
+          ...(onUpgrade && userType !== 'pro' && {
             action: {
               label: userType === 'anonymous' ? 'Registar' : 'Upgrade',
               onClick: onUpgrade
@@ -209,7 +209,7 @@ export function UsageNotification({
           <p className="text-red-800 font-medium">
             {getNotificationMessage(reason || 'limit_exceeded', usageInfo.userType)}
           </p>
-          {suggestedAction && (
+          {suggestedAction && usageInfo.userType !== 'pro' && (
             <div className="mt-3 flex gap-2">
               <Button size="sm" onClick={onUpgrade} className="bg-red-600 hover:bg-red-700">
 {suggestedAction.type === 'upgrade' ? 'Upgrade' : suggestedAction.type === 'register' ? 'Registar' : 'Aguardar'}
