@@ -34,7 +34,7 @@
 - [x] **2.11** Implement user profile management
 - [x] **2.12** Create authentication context and hooks
 - [x] **2.13** Set up automatic profile creation on signup
-- [ ] **2.14** Fix authentication failures after registration, user is being created in supabase and in the profiles table, but the ui is showing an error
+- [x] **2.14** Fix authentication failures after registration, user is being created in supabase and in the profiles table, but the ui is showing an error
 
 ## Phase 3: Core Calculator Infrastructure 🔧
 *Dependencies: Requires Phase 1-2 completion*

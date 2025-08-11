@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { UsageLimitModal, useUsageLimitModal } from '@/components/payments/UsageLimitModal'
+import { UsageLimitModal, useUsageLimitModal } from '@/components/usage/UsageLimitBanner'
 import { CompactPricingCard } from '@/components/payments/PricingPlans'
 import { AlertCircle, Calculator, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/lib/auth/context'
+import { UsageLimit } from '@/types/calculator'
 
 interface CalculatorWrapperProps {
   title: string
@@ -90,14 +91,21 @@ export function CalculatorWrapper({
 
     // If user has reached limit, show blocking modal
     if (!usageInfo.allowed) {
-      showUsageLimitModal({
-        userType: usageInfo.userType,
-        checkoutUrl: usageInfo.checkoutUrl,
-        resetTime: new Date(usageInfo.resetTime),
-        remaining: usageInfo.remaining,
-        used: usageInfo.used,
-        limit: usageInfo.limit
-      })
+      const modalProps: { usageInfo: UsageLimit; resetTime: Date; checkoutUrl?: string } = {
+        usageInfo: {
+          userType: usageInfo.userType,
+          dailyLimit: usageInfo.limit,
+          currentUsage: usageInfo.used,
+          canCalculate: usageInfo.allowed,
+          resetTime: new Date(usageInfo.resetTime),
+          requiresUpgrade: usageInfo.requiresUpgrade || false
+        } as UsageLimit,
+        resetTime: new Date(usageInfo.resetTime)
+      }
+      if (usageInfo.checkoutUrl) {
+        modalProps.checkoutUrl = usageInfo.checkoutUrl
+      }
+      showUsageLimitModal(modalProps)
       return
     }
 
@@ -209,14 +217,23 @@ export function CalculatorWrapper({
                   <Button 
                     variant="link" 
                     className="p-0 h-auto ml-2 text-red-800 underline"
-                    onClick={() => showUsageLimitModal({
-                      userType: usageInfo.userType,
-                      checkoutUrl: usageInfo.checkoutUrl,
-                      resetTime: new Date(usageInfo.resetTime),
-                      remaining: usageInfo.remaining,
-                      used: usageInfo.used,
-                      limit: usageInfo.limit
-                    })}
+                    onClick={() => {
+                      const modalProps: { usageInfo: UsageLimit; resetTime: Date; checkoutUrl?: string } = {
+                        usageInfo: {
+                          userType: usageInfo.userType,
+                          dailyLimit: usageInfo.limit,
+                          currentUsage: usageInfo.used,
+                          canCalculate: usageInfo.allowed,
+                          resetTime: new Date(usageInfo.resetTime),
+                          requiresUpgrade: usageInfo.requiresUpgrade || false
+                        } as UsageLimit,
+                        resetTime: new Date(usageInfo.resetTime)
+                      }
+                      if (usageInfo.checkoutUrl) {
+                        modalProps.checkoutUrl = usageInfo.checkoutUrl
+                      }
+                      showUsageLimitModal(modalProps)
+                    }}
                   >
                     Ver opções de upgrade
                   </Button>
@@ -250,7 +267,7 @@ export function CalculatorWrapper({
       </Card>
 
       {/* Upgrade Prompt */}
-      {showUpgradePrompt && usageInfo?.userType !== 'pro' && (
+      {showUpgradePrompt && usageInfo?.userType !== 'pro' && usageInfo && (
         <CompactPricingCard 
           currentTier={usageInfo.userType}
           onUpgrade={() => {
@@ -286,7 +303,7 @@ export function withUsageTracking<T extends object>(
     return (
       <CalculatorWrapper 
         title={title}
-        description={description}
+        {...(description && { description })}
         calculatorType={calculatorType}
       >
         <WrappedComponent {...props} />

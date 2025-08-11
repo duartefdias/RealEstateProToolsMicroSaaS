@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { stripe } from '@/lib/payments/stripe'
+import { stripe } from '@/lib/payments/stripe-server'
 import { createServerSupabaseClient } from '@/lib/database/supabase'
 
 // Raw body is needed for webhook signature verification

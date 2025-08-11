@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/auth/server'
-import { stripe, STRIPE_CONFIG } from '@/lib/payments/stripe'
+import { stripe, STRIPE_CONFIG } from '@/lib/payments/stripe-server'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    // Check if user is authenticated
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user) {
+    // Check if user is authenticated (using getUser for security)
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_customer_id, email, full_name')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (!profile) {
@@ -35,10 +35,10 @@ export async function POST(request: NextRequest) {
     // Create Stripe customer if doesn't exist
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: profile.email || session.user.email!,
+        email: profile.email || user.email!,
         name: profile.full_name || undefined,
         metadata: {
-          userId: session.user.id,
+          userId: user.id,
           source: 'real-estate-pro-tools'
         },
       })
@@ -49,15 +49,15 @@ export async function POST(request: NextRequest) {
       await supabase
         .from('profiles')
         .update({ stripe_customer_id: customerId })
-        .eq('id', session.user.id)
+        .eq('id', user.id)
 
-      console.log('🔐 Created Stripe customer:', customerId, 'for user:', session.user.id)
+      console.log('🔐 Created Stripe customer:', customerId, 'for user:', user.id)
     }
 
     // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      client_reference_id: session.user.id,
+      client_reference_id: user.id,
       line_items: [
         {
           price: priceId,
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       // Subscription configuration
       subscription_data: {
         metadata: {
-          userId: session.user.id,
+          userId: user.id,
           source: 'checkout',
         },
       },
@@ -97,14 +97,15 @@ export async function POST(request: NextRequest) {
       },
       
       // Consent collection for Portuguese GDPR compliance
-      consent_collection: {
-        terms_of_service: 'required',
-      },
+      // Note: Requires Terms of Service URL to be set in Stripe Dashboard
+      // consent_collection: {
+      //   terms_of_service: 'required',
+      // },
     }
 
     const checkoutSession = await stripe.checkout.sessions.create(sessionParams)
 
-    console.log('🔐 Created checkout session:', checkoutSession.id, 'for user:', session.user.id)
+    console.log('🔐 Created checkout session:', checkoutSession.id, 'for user:', user.id)
 
     return NextResponse.json({
       sessionId: checkoutSession.id,

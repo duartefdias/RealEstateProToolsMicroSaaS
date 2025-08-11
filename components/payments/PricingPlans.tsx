@@ -18,7 +18,7 @@ export function PricingPlans({ currentTier = 'free', userId, onUpgrade }: Pricin
 
   const handleUpgrade = async (tierKey: string) => {
     const tier = subscriptionTiers[tierKey]
-    if (!tier.stripePriceId || !userId) return
+    if (!tier || !tier.stripePriceId || !userId) return
 
     setIsLoading(tierKey)
     
@@ -146,7 +146,7 @@ export function PricingPlans({ currentTier = 'free', userId, onUpgrade }: Pricin
 
           <CardContent className="pt-4">
             <div className="space-y-3 mb-6">
-              {plan.features.map((feature, index) => (
+              {plan.features?.map((feature, index) => (
                 <div key={index} className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-gray-700">{feature}</span>
@@ -223,7 +223,7 @@ export function CompactPricingCard({
   const proTier = subscriptionTiers.pro
 
   const handleUpgrade = async () => {
-    if (!proTier.stripePriceId) return
+    if (!proTier || !proTier.stripePriceId) return
     
     setIsLoading(true)
     onUpgrade?.()
@@ -243,7 +243,7 @@ export function CompactPricingCard({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-purple-900">€{proTier.price}</div>
+            <div className="text-lg font-bold text-purple-900">€{proTier?.price}</div>
             <div className="text-xs text-purple-600">/mês</div>
           </div>
         </div>

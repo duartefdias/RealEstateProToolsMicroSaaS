@@ -1,11 +1,4 @@
-import Stripe from 'stripe'
 import { SubscriptionTier } from '@/types/payment'
-
-// Server-side Stripe client (never expose secret key to client)
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-  typescript: true,
-})
 
 // Client-side publishable key
 export const getStripePublishableKey = () => {
@@ -67,7 +60,7 @@ export const subscriptionTiers: Record<string, SubscriptionTier> = {
     price: 9.99,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID!,
+    stripePriceId: 'price_1Rv2zlE9BP87lSyiK5Fwo0HJ', // Pro Monthly Price ID (TEST MODE)
     features: [
       'Unlimited calculations',
       'All calculators + advanced features',
@@ -119,46 +112,9 @@ export function formatPrice(amount: number, currency: string = 'EUR'): string {
   }).format(amount)
 }
 
-// Stripe webhook event types we handle
-export const STRIPE_WEBHOOK_EVENTS = [
-  'checkout.session.completed',
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted',
-  'customer.subscription.paused',
-  'invoice.payment_succeeded',
-  'invoice.payment_failed',
-  'invoice.payment_action_required',
-  'customer.created',
-  'customer.updated',
-  'customer.deleted',
-] as const
-
-export type StripeWebhookEvent = (typeof STRIPE_WEBHOOK_EVENTS)[number]
-
-// Constants for Stripe configuration
+// Client-safe Stripe configuration constants
 export const STRIPE_CONFIG = {
   currency: 'eur',
   country: 'PT',
   locale: 'pt',
-  success_url: '/dashboard?payment=success',
-  cancel_url: '/pricing?payment=canceled',
-  customer_portal_return_url: '/dashboard/billing',
-  
-  // Tax configuration for Portugal
-  tax_id_collection: {
-    enabled: true,
-    required: 'if_supported' as const,
-  },
-  
-  // Supported payment methods for Portuguese market
-  payment_method_types: [
-    'card',
-    'sepa_debit',
-    'multibanco', // Popular in Portugal
-  ],
-  
-  // Billing configuration
-  billing_address_collection: 'required' as const,
-  allow_promotion_codes: true,
 } as const

@@ -45,7 +45,7 @@ export const checkUsageLimit = async (
         resetTime: usageCheck.resetTime,
         requiresUpgrade: usageCheck.requiresUpgrade,
         userType,
-        checkoutUrl: usageCheck.checkoutUrl
+        ...(usageCheck.checkoutUrl && { checkoutUrl: usageCheck.checkoutUrl })
       }
     } catch (error) {
       console.error('Error checking user usage limit:', error)

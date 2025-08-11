@@ -74,11 +74,11 @@ export default function PricingPage() {
 
   const getButtonState = (plan: PricingPlan) => {
     const isCurrentPlan = profile?.subscription_tier === plan.tier.id
-    const isLoading: boolean = !!plan.tier.name
+    const planIsLoading = isLoading === plan.tier.name
     
     return {
-      disabled: isCurrentPlan || isLoading,
-      loading: isLoading,
+      disabled: isCurrentPlan || planIsLoading,
+      loading: planIsLoading,
       text: isCurrentPlan ? 'Current Plan' : plan.ctaText
     }
   }

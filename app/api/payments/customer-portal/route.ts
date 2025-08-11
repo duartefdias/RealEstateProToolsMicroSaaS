@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/auth/server'
-import { stripe, STRIPE_CONFIG } from '@/lib/payments/stripe'
+import { stripe, STRIPE_CONFIG } from '@/lib/payments/stripe-server'
 
 export async function POST(request: NextRequest) {
   try {

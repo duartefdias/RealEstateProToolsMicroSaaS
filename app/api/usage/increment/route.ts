@@ -12,8 +12,7 @@ export async function POST(request: NextRequest) {
     // Get IP address for tracking
     const ipAddress = headersList.get('x-forwarded-for') || 
                      headersList.get('x-real-ip') || 
-                     request.ip || 
-                     'unknown'
+                     '127.0.0.1'
     
     const sessionId = headersList.get('x-session-id') || 
                       `${ipAddress}-${Date.now()}`

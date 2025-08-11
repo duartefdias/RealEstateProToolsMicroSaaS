@@ -11,8 +11,7 @@ export async function POST(request: NextRequest) {
     // Get IP address and session info for anonymous users
     const ipAddress = headersList.get('x-forwarded-for') || 
                      headersList.get('x-real-ip') || 
-                     request.ip || 
-                     'unknown'
+                     '127.0.0.1'
     
     // Generate session ID for anonymous users (you might want to use cookies)
     const sessionId = headersList.get('x-session-id') || 
