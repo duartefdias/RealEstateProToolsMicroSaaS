@@ -69,12 +69,22 @@ async function handleCheckoutSessionCompleted(session: any) {
 
   console.log('Processing for user:', userId)
 
+  // Extract customer ID - handle both string ID and expanded object
+  const customerId = typeof session.customer === 'string' 
+    ? session.customer 
+    : session.customer?.id
+
+  if (!customerId) {
+    console.error('No customer ID found in session')
+    throw new Error('No customer ID found in checkout session')
+  }
+
   // Update user profile with subscription info
   const { error: profileError } = await supabase
     .from('profiles')
     .update({
       subscription_tier: 'pro',
-      stripe_customer_id: session.customer as string,
+      stripe_customer_id: customerId,
       subscription_id: session.subscription as string,
       subscription_status: 'active',
       subscription_plan: 'pro'
@@ -122,7 +132,7 @@ async function handleCheckoutSessionCompleted(session: any) {
       .from('subscription_events')
       .insert({
         user_id: userId,
-        stripe_customer_id: session.customer as string,
+        stripe_customer_id: customerId,
         stripe_subscription_id: session.subscription as string,
         event_type: 'checkout_completed',
         old_status: null,
@@ -139,7 +149,7 @@ async function handleCheckoutSessionCompleted(session: any) {
           .from('subscription_events')
           .insert({
             user_id: userId,
-            stripe_customer_id: session.customer as string,
+            stripe_customer_id: customerId,
             stripe_subscription_id: session.subscription as string,
             event_type: 'checkout_completed',
             old_status: null,
