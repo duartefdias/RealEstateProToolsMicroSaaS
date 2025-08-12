@@ -83,10 +83,6 @@ export default function HomePage() {
             Calcule, simule e analise qualquer transação ou investimento imobiliário em segundos.
             100% adaptado ao mercado português, com dados sempre atualizados.
           </h2>
-          <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            O Real Estate Pro Tools é a plataforma que transforma decisões imobiliárias complexas em cálculos claros e rápidos.
-            Desde estimar o IMT ou o imposto de selo, até simular créditos, rendimentos de arrendamento ou custos de obras, tudo é feito em segundos — sem necessidade de instalação e com resultados fiáveis, validados por especialistas.
-          </p>
         </div>
         
         {/* Calculator Grid */}
@@ -358,6 +354,21 @@ export default function HomePage() {
                   <Link href="/pricing">Upgrade para Pro</Link>
                 </Button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold text-foreground mb-6">
+                A Plataforma que Simplifica o Imobiliário
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                O Real Estate Pro Tools é a plataforma que transforma decisões imobiliárias complexas em cálculos claros e rápidos.
+                Desde estimar o IMT ou o imposto de selo, até simular créditos, rendimentos de arrendamento ou custos de obras, tudo é feito em segundos — sem necessidade de instalação e com resultados fiáveis, validados por especialistas.
+              </p>
             </div>
           </div>
         </section>
