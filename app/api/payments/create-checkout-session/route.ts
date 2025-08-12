@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       
       // Portuguese market configuration
       currency: STRIPE_CONFIG.currency,
-      locale: STRIPE_CONFIG.locale,
+      locale: STRIPE_CONFIG.locale as any,
       
       // Tax and billing
       tax_id_collection: STRIPE_CONFIG.tax_id_collection,

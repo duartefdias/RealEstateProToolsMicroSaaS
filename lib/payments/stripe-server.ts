@@ -3,7 +3,6 @@ import { SubscriptionTier } from '@/types/payment'
 
 // Server-side Stripe client (never expose secret key to client)
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
   typescript: true,
 })
 
@@ -49,7 +48,7 @@ export const STRIPE_CONFIG = {
   // Billing configuration
   billing_address_collection: 'required' as const,
   allow_promotion_codes: true,
-} as const
+}
 
 // Server-side helper functions
 export async function createCheckoutSession(params: {
@@ -62,8 +61,8 @@ export async function createCheckoutSession(params: {
   const { priceId, userId, userEmail, successUrl, cancelUrl } = params
 
   const session = await stripe.checkout.sessions.create({
-    customer_email: userEmail,
-    client_reference_id: userId,
+    ...(userEmail && { customer_email: userEmail }),
+    ...(userId && { client_reference_id: userId }),
     line_items: [{
       price: priceId,
       quantity: 1,
@@ -71,15 +70,17 @@ export async function createCheckoutSession(params: {
     mode: 'subscription',
     success_url: successUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?payment=success`,
     cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/pricing?payment=canceled`,
-    subscription_data: userId ? {
-      metadata: {
-        user_id: userId,
-      },
-    } : undefined,
+    ...(userId && {
+      subscription_data: {
+        metadata: {
+          user_id: userId,
+        },
+      }
+    }),
     allow_promotion_codes: STRIPE_CONFIG.allow_promotion_codes,
     billing_address_collection: STRIPE_CONFIG.billing_address_collection,
     tax_id_collection: STRIPE_CONFIG.tax_id_collection,
-    payment_method_types: STRIPE_CONFIG.payment_method_types,
+    payment_method_types: STRIPE_CONFIG.payment_method_types as any,
   })
 
   return session

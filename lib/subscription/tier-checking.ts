@@ -5,7 +5,6 @@ import { ANONYMOUS_SESSION_CONFIG } from '../usage/session-tracking'
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
   appInfo: {
     name: 'Real Estate Pro Tools',
     version: '1.0.0',
@@ -109,7 +108,7 @@ export const getUserSubscription = async (userId: string): Promise<SubscriptionI
     }
 
     const userTier = (profile.subscription_tier as UserType) || 'free'
-    const tierConfig = SUBSCRIPTION_TIERS[userTier]
+    const tierConfig = SUBSCRIPTION_TIERS[userTier as keyof typeof SUBSCRIPTION_TIERS] || SUBSCRIPTION_TIERS.free
 
     // Base subscription info
     let subscriptionInfo: SubscriptionInfo = {
@@ -120,27 +119,27 @@ export const getUserSubscription = async (userId: string): Promise<SubscriptionI
       planName: tierConfig.name,
       planPrice: tierConfig.monthlyPrice,
       dailyCalculations: tierConfig.dailyCalculations,
-      features: tierConfig.features,
+      features: [...tierConfig.features],
       canUpgrade: userTier !== 'pro',
       canDowngrade: userTier === 'pro',
-      currentPeriodEnd: profile.current_period_end ? new Date(profile.current_period_end) : undefined
+      ...(profile.current_period_end && { currentPeriodEnd: new Date(profile.current_period_end) })
     }
 
     // If user has Stripe subscription, get detailed info
-    if (profile.stripe_subscription_id) {
+    if (profile.subscription_id) {
       try {
-        const stripeSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id, {
+        const stripeSubscription = await stripe.subscriptions.retrieve(profile.subscription_id, {
           expand: ['latest_invoice', 'customer']
         })
 
         subscriptionInfo = {
           ...subscriptionInfo,
-          status: stripeSubscription.status,
-          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-          cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-          trialEnd: stripeSubscription.trial_end ? new Date(stripeSubscription.trial_end * 1000) : undefined,
-          nextBillingDate: new Date(stripeSubscription.current_period_end * 1000),
+          status: stripeSubscription.status as any,
+          currentPeriodStart: new Date((stripeSubscription as any).current_period_start * 1000),
+          currentPeriodEnd: new Date((stripeSubscription as any).current_period_end * 1000),
+          cancelAtPeriodEnd: (stripeSubscription as any).cancel_at_period_end,
+          ...((stripeSubscription as any).trial_end && { trialEnd: new Date((stripeSubscription as any).trial_end * 1000) }),
+          nextBillingDate: new Date((stripeSubscription as any).current_period_end * 1000),
           lastPaymentFailed: stripeSubscription.status === 'past_due'
         }
 
@@ -166,7 +165,7 @@ export const getUserSubscription = async (userId: string): Promise<SubscriptionI
       planName: SUBSCRIPTION_TIERS.free.name,
       planPrice: SUBSCRIPTION_TIERS.free.monthlyPrice,
       dailyCalculations: SUBSCRIPTION_TIERS.free.dailyCalculations,
-      features: SUBSCRIPTION_TIERS.free.features,
+      features: [...SUBSCRIPTION_TIERS.free.features],
       canUpgrade: true,
       canDowngrade: false
     }
@@ -324,7 +323,7 @@ export const cancelSubscription = async (
 
       return {
         success: true,
-        periodEnd: new Date(subscription.current_period_end * 1000)
+        periodEnd: new Date((subscription as any).current_period_end * 1000)
       }
     } else {
       // Cancel immediately
@@ -386,7 +385,7 @@ export const updateSubscription = async (
     // Update subscription item
     const updatedSubscription = await stripe.subscriptions.update(profile.subscription_id, {
       items: [{
-        id: currentItem.id,
+        id: currentItem!.id,
         price: newPriceId
       }],
       proration_behavior: 'always_invoice'
@@ -395,7 +394,7 @@ export const updateSubscription = async (
     return {
       success: true,
       newPlan: newPriceId,
-      effectiveDate: new Date(updatedSubscription.current_period_start * 1000),
+      effectiveDate: new Date((updatedSubscription as any).current_period_start * 1000),
       prorationAmount: 0 // Would need to calculate based on invoice
     }
   } catch (error) {
@@ -436,7 +435,7 @@ export const reactivateSubscription = async (userId: string): Promise<{
     return {
       success: true,
       reactivatedAt: new Date(),
-      nextBillingDate: new Date(subscription.current_period_end * 1000)
+      nextBillingDate: new Date((subscription as any).current_period_end * 1000)
     }
   } catch (error) {
     console.error('reactivateSubscription error:', error)
@@ -518,8 +517,8 @@ export const syncSubscriptionFromWebhook = async (
         subscription_tier: subscriptionTier,
         subscription_id: stripeSubscription.id,
         subscription_status: stripeSubscription.status,
-        current_period_start: new Date(stripeSubscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
+        current_period_start: new Date((stripeSubscription as any).current_period_start * 1000).toISOString(),
+        current_period_end: new Date((stripeSubscription as any).current_period_end * 1000).toISOString(),
         stripe_customer_id: stripeSubscription.customer as string
       })
       .eq('id', userId)
@@ -620,5 +619,4 @@ export const getSubscriptionAnalytics = async (userId: string): Promise<{
 }
 
 // Export constants and types
-export type { SubscriptionInfo }
 export { stripe }

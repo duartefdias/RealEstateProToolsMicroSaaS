@@ -74,23 +74,24 @@ export const recordCalculationUsage = async (
   userId?: string
 ): Promise<UsageTrackingRecord> => {
   const timestamp = new Date()
+  const country = await getCountryFromIP(context.ipAddress)
   
   const record: UsageTrackingRecord = {
-    user_id: userId,
-    session_id: context.sessionId,
+    ...(userId && { user_id: userId }),
+    ...(context.sessionId && { session_id: context.sessionId }),
     calculator_type: calculatorType,
-    input_data: inputs ? sanitizeInputData(inputs) : undefined,
-    result_data: result ? sanitizeResultData(result) : undefined,
-    ip_address: context.ipAddress,
-    user_agent: context.userAgent,
-    referrer: context.referrer,
-    calculation_time_ms: calculationTimeMs,
+    ...(inputs && { input_data: sanitizeInputData(inputs) }),
+    ...(result && { result_data: sanitizeResultData(result) }),
+    ...(context.ipAddress && { ip_address: context.ipAddress }),
+    ...(context.userAgent && { user_agent: context.userAgent }),
+    ...(context.referrer && { referrer: context.referrer }),
+    ...(calculationTimeMs && { calculation_time_ms: calculationTimeMs }),
     created_at: timestamp.toISOString(),
     metadata: {
       user_type: userType,
       tier_at_time: userType,
       calculation_success: !!result,
-      country: await getCountryFromIP(context.ipAddress),
+      ...(country && { country }),
     }
   }
 
@@ -130,8 +131,8 @@ export const getDailyUsage = async (
   const cached = usageCache.get(cacheKey)
   if (cached && (Date.now() - cached.lastUpdated.getTime()) < CACHE_TTL) {
     return {
-      userId,
-      sessionId,
+      ...(userId && { userId }),
+      ...(sessionId && { sessionId }),
       dailyCount: cached.count,
       totalCount: cached.count, // Simplified for cache
       firstCalculationToday: cached.resetTime,
@@ -186,13 +187,16 @@ export const getDailyUsage = async (
       currentTier = userType
     }
 
+    const firstRecord = records[0]
+    const lastRecord = records[records.length - 1]
+
     const stats: DailyUsageStats = {
-      userId,
-      sessionId,
+      ...(userId && { userId }),
+      ...(sessionId && { sessionId }),
       dailyCount: records.length,
       totalCount: records.length, // Could be enhanced to get all-time count
-      firstCalculationToday: records[0] ? new Date(records[0].created_at!) : new Date(),
-      lastCalculation: records[records.length - 1] ? new Date(records[records.length - 1].created_at!) : new Date(),
+      firstCalculationToday: firstRecord?.created_at ? new Date(firstRecord.created_at) : new Date(),
+      lastCalculation: lastRecord?.created_at ? new Date(lastRecord.created_at) : new Date(),
       userType,
       currentTier
     }
@@ -347,8 +351,12 @@ export const getUsageAnalytics = async (
     const dailyCounts: Record<string, number> = {}
 
     records.forEach(record => {
-      const date = new Date(record.created_at).toISOString().split('T')[0]
-      dailyCounts[date] = (dailyCounts[date] || 0) + 1
+      if (record.created_at) {
+        const date = new Date(record.created_at).toISOString().split('T')[0]
+        if (date) {
+          dailyCounts[date] = (dailyCounts[date] || 0) + 1
+        }
+      }
     })
 
     Object.entries(dailyCounts).forEach(([date, count]) => {

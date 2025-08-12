@@ -298,7 +298,7 @@ export const isDailyResetNeeded = async (): Promise<{
     if (error) {
       return {
         needed: true, // Assume reset is needed if we can't check
-        currentDate,
+        currentDate: (currentDate || new Date().toISOString().split('T')[0]) as string,
         reason: `Database check failed: ${error.message}`
       }
     }
@@ -309,14 +309,14 @@ export const isDailyResetNeeded = async (): Promise<{
     return {
       needed,
       lastResetDate,
-      currentDate,
+      currentDate: currentDate as string,
       reason: needed ? 'Users found with outdated reset dates' : 'All users up to date'
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return {
       needed: true,
-      currentDate,
+      currentDate: currentDate as string,
       reason: `Exception during check: ${errorMessage}`
     }
   }

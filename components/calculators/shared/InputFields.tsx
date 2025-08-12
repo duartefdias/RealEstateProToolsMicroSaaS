@@ -16,7 +16,7 @@ interface BaseFieldProps {
   config: CalculatorFieldConfig
   value: any
   onChange: (value: any) => void
-  error?: string
+  error?: string | undefined
   disabled?: boolean
   className?: string
 }

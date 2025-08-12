@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error processing test webhook:', error)
     return NextResponse.json(
-      { error: 'Failed to process checkout session', details: error.message },
+      { error: 'Failed to process checkout session', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }

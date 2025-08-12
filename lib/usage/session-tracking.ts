@@ -120,7 +120,7 @@ export const getOrCreateAnonymousSession = async (): Promise<AnonymousSession> =
     createdAt: new Date(),
     lastActivity: new Date(),
     userAgent: navigator.userAgent,
-    referrer: document.referrer || undefined,
+    ...(document.referrer && { referrer: document.referrer }),
     metadata: {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }
@@ -195,9 +195,9 @@ export const createUsageContext = async (
 
   return {
     sessionId: session?.sessionId || 'fallback-' + Date.now(),
-    ipAddress,
-    userAgent: session?.userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : undefined),
-    referrer: session?.referrer
+    ...(ipAddress && { ipAddress }),
+    ...(session?.userAgent && { userAgent: session.userAgent }),
+    ...(session?.referrer && { referrer: session.referrer })
   }
 }
 

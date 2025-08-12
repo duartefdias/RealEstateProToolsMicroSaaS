@@ -148,7 +148,7 @@ export const SellHouseInputSchema = BaseCalculatorInputSchema.extend({
 }, {
   message: 'Preço de compra não pode ser superior ao valor atual',
   path: ['originalPurchasePrice']
-}) satisfies z.ZodType<SellHouseInput>
+})
 
 // Buy House Calculator validation schema
 export const BuyHouseInputSchema = BaseCalculatorInputSchema.extend({
@@ -163,7 +163,7 @@ export const BuyHouseInputSchema = BaseCalculatorInputSchema.extend({
     message: 'Finalidade deve ser habitação própria, secundária ou investimento',
   }),
   propertyAge: z.number({
-    invalid_type_error: ERROR_MESSAGES.invalid_type_number,
+    message: ERROR_MESSAGES.invalid_type_number,
   }).int('Idade deve ser em anos completos').min(0).max(500).optional(),
   energyRating: z.enum(['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F', 'G'], {
     message: 'Certificação energética inválida',
@@ -198,7 +198,7 @@ export const BuyHouseInputSchema = BaseCalculatorInputSchema.extend({
 }, {
   message: 'Primeira habitação deve ser para habitação própria permanente',
   path: ['intendedUse']
-}) satisfies z.ZodType<BuyHouseInput>
+})
 
 // Mortgage Calculator validation schema
 export const MortgageInputSchema = BaseCalculatorInputSchema.extend({
@@ -267,7 +267,7 @@ export const MortgageInputSchema = BaseCalculatorInputSchema.extend({
 export const UsageContextSchema = z.object({
   userId: z.string().uuid().optional(),
   sessionId: z.string().min(1, 'ID de sessão é obrigatório'),
-  ipAddress: z.string().ip('Endereço IP inválido').optional(),
+  ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
   referrer: z.string().url('URL de referência inválida').optional(),
 })
@@ -380,6 +380,7 @@ export const validateTierAccess = (
   }
   
   const messages = {
+    free: 'Esta funcionalidade está disponível gratuitamente.',
     registered: 'Esta funcionalidade requer registo gratuito.',
     pro: 'Esta funcionalidade requer subscrição Pro.'
   }

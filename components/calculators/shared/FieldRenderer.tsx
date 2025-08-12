@@ -32,7 +32,7 @@ export function FieldRenderer({
           error={errors[config.id]}
           disabled={disabled}
           formValues={values}
-          onUpgrade={onUpgrade}
+          {...(onUpgrade && { onUpgrade })}
         />
       ))}
     </div>

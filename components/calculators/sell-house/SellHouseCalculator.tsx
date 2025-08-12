@@ -8,7 +8,7 @@ import { FieldRenderer } from '../shared/FieldRenderer'
 import { ResultsDisplay } from '../shared/ResultsDisplay'
 import { CALCULATOR_CONFIGS, COMMON_FIELD_CONFIGS } from '@/lib/calculators/config'
 import { calculateSellHouseCosts, validateSellHouseInput } from '@/lib/calculators/sell-house-logic'
-import { SellHouseInput, SellHouseCalculationResult, CalculatorFieldConfig } from '@/types/calculator'
+import { SellHouseInput, BaseCalculationResult, CalculatorFieldConfig } from '@/types/calculator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calculator, TrendingUp, Home, AlertCircle } from 'lucide-react'
@@ -16,12 +16,11 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export function SellHouseCalculator() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const router = useRouter()
   
   // Form state
   const [inputs, setInputs] = useState<Partial<SellHouseInput>>({
-    propertyValue: undefined,
     location: '',
     hasOutstandingMortgage: false,
     realEstateAgentCommission: 0.06, // 6% default
@@ -30,7 +29,7 @@ export function SellHouseCalculator() {
   })
   
   // UI state
-  const [result, setResult] = useState<SellHouseCalculationResult | null>(null)
+  const [result, setResult] = useState<BaseCalculationResult | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [validationWarnings, setValidationWarnings] = useState<string[]>([])
   const [isCalculating, setIsCalculating] = useState(false)
@@ -41,11 +40,11 @@ export function SellHouseCalculator() {
   
   // Field configurations for the form
   const fieldConfigs: CalculatorFieldConfig[] = [
-    COMMON_FIELD_CONFIGS.propertyValue,
-    COMMON_FIELD_CONFIGS.location,
-    COMMON_FIELD_CONFIGS.realEstateAgentCommission,
-    COMMON_FIELD_CONFIGS.hasOutstandingMortgage,
-    COMMON_FIELD_CONFIGS.outstandingMortgageAmount,
+    COMMON_FIELD_CONFIGS.propertyValue!,
+    COMMON_FIELD_CONFIGS.location!,
+    COMMON_FIELD_CONFIGS.realEstateAgentCommission!,
+    COMMON_FIELD_CONFIGS.hasOutstandingMortgage!,
+    COMMON_FIELD_CONFIGS.outstandingMortgageAmount!,
     {
       id: 'mortgageType',
       type: 'select',
@@ -191,8 +190,8 @@ export function SellHouseCalculator() {
       setShowResults(true)
       
       // Track calculation completion
-      if (typeof window !== 'undefined' && window.posthog) {
-        window.posthog.capture('calculation_completed', {
+      if (typeof window !== 'undefined' && (window as any).posthog) {
+        (window as any).posthog.capture('calculation_completed', {
           calculator_type: 'sell-house',
           property_value: inputs.propertyValue,
           location: inputs.location,
@@ -215,7 +214,6 @@ export function SellHouseCalculator() {
   // Reset form
   const handleReset = () => {
     setInputs({
-      propertyValue: undefined,
       location: '',
       hasOutstandingMortgage: false,
       realEstateAgentCommission: 0.06,
@@ -378,7 +376,7 @@ export function SellHouseCalculator() {
             </Card>
             
             {/* Pro Features Teaser */}
-            {!user || (user && !['pro'].includes(user.subscription_tier || 'free')) && (
+            {!user || (user && !['pro'].includes(profile?.subscription_tier || 'free')) && (
               <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center text-purple-700">

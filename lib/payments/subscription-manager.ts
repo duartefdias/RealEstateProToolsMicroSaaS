@@ -30,7 +30,7 @@ export class SubscriptionManager {
           stripeCustomer = await stripe.customers.retrieve(profile.stripe_customer_id) as Stripe.Customer
           
           if (profile.subscription_id) {
-            stripeSubscription = await stripe.subscriptions.retrieve(profile.subscription_id)
+            stripeSubscription = await stripe.subscriptions.retrieve(profile.subscription_id) as Stripe.Subscription
           }
         } catch (error) {
           console.error('Error fetching Stripe data:', error)
@@ -54,14 +54,14 @@ export class SubscriptionManager {
         paymentHistory: paymentHistory || [],
         canUpgrade: profile.subscription_tier !== 'pro',
         canDowngrade: profile.subscription_tier === 'pro' && isActiveSubscription,
-        canCancel: isActiveSubscription && !stripeSubscription?.cancel_at_period_end,
-        canReactivate: stripeSubscription?.cancel_at_period_end === true,
-        nextBillingDate: stripeSubscription?.current_period_end 
-          ? new Date(stripeSubscription.current_period_end * 1000) 
+        canCancel: isActiveSubscription && !(stripeSubscription as any)?.cancel_at_period_end,
+        canReactivate: (stripeSubscription as any)?.cancel_at_period_end === true,
+        nextBillingDate: (stripeSubscription as any)?.current_period_end 
+          ? new Date((stripeSubscription as any).current_period_end * 1000) 
           : null,
         currentUsage: {
           calculationsUsed: profile.daily_calculations_used,
-          calculationsLimit: currentTier.limits.dailyCalculations,
+          calculationsLimit: currentTier?.limits.dailyCalculations || 5,
           resetDate: this.getNextResetDate()
         }
       }
@@ -216,7 +216,7 @@ export class SubscriptionManager {
           remaining: Infinity,
           resetTime: this.getNextResetDate(),
           requiresUpgrade: false,
-          currentTier
+          currentTier: currentTier || subscriptionTiers.free!
         }
       }
 
@@ -238,7 +238,7 @@ export class SubscriptionManager {
         currentUsage = 0
       }
 
-      const limit = currentTier.limits.dailyCalculations
+      const limit = currentTier?.limits.dailyCalculations || 5
       const remaining = Math.max(0, limit - currentUsage)
       const requiresUpgrade = remaining === 0
 
@@ -247,10 +247,10 @@ export class SubscriptionManager {
       // Generate checkout URL if upgrade required
       if (requiresUpgrade) {
         const proTier = subscriptionTiers['pro']
-        if (proTier.stripePriceId) {
+        if (proTier?.stripePriceId) {
           const checkoutData = await this.createCheckoutSession(
             userId,
-            proTier.stripePriceId,
+            proTier!.stripePriceId,
             `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?upgrade=success`,
             `${process.env.NEXT_PUBLIC_SITE_URL}/pricing?upgrade=canceled`
           )
@@ -263,8 +263,8 @@ export class SubscriptionManager {
         remaining,
         resetTime: this.getNextResetDate(),
         requiresUpgrade,
-        checkoutUrl,
-        currentTier
+        ...(checkoutUrl && { checkoutUrl }),
+        currentTier: currentTier || subscriptionTiers.free!
       }
     } catch (error) {
       console.error('Error checking usage limit:', error)
@@ -355,14 +355,14 @@ export class SubscriptionManager {
     return {
       id: subscription.id,
       customerId: subscription.customer as string,
-      status: subscription.status,
+      status: subscription.status as any,
       priceId: subscription.items.data[0]?.price.id || '',
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
-      trialStart: subscription.trial_start ? new Date(subscription.trial_start * 1000) : null,
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
+      canceledAt: (subscription as any).canceled_at ? new Date((subscription as any).canceled_at * 1000) : null,
+      trialStart: (subscription as any).trial_start ? new Date((subscription as any).trial_start * 1000) : null,
+      trialEnd: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : null,
       metadata: subscription.metadata as Record<string, string>
     }
   }
@@ -371,7 +371,7 @@ export class SubscriptionManager {
     return {
       id: customer.id,
       email: customer.email || '',
-      name: customer.name,
+      name: customer.name || null,
       created: new Date(customer.created * 1000),
       metadata: customer.metadata as Record<string, string>
     }
@@ -406,13 +406,13 @@ export async function enforceUsageLimit(userId: string): Promise<{
     allowed: usageCheck.allowed,
     remaining: usageCheck.remaining === Infinity ? -1 : usageCheck.remaining,
     requiresUpgrade: usageCheck.requiresUpgrade,
-    checkoutUrl: usageCheck.checkoutUrl
+    ...(usageCheck.checkoutUrl && { checkoutUrl: usageCheck.checkoutUrl })
   }
 }
 
 export async function checkSubscriptionAccess(
   userId: string, 
-  requiredFeature: keyof typeof subscriptionTiers.pro.limits
+  requiredFeature: string
 ): Promise<boolean> {
   try {
     const { data: profile } = await createServerSupabaseClient()
@@ -424,7 +424,7 @@ export async function checkSubscriptionAccess(
     if (!profile) return false
 
     const tier = subscriptionTiers[profile.subscription_tier] ?? subscriptionTiers.free
-    return Boolean(tier.limits[requiredFeature])
+    return Boolean(tier?.limits[requiredFeature as keyof typeof tier.limits])
   } catch (error) {
     console.error('Error checking subscription access:', error)
     return false

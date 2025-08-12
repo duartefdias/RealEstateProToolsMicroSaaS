@@ -214,7 +214,9 @@ export class CalculatorError extends Error {
     super(message);
     this.name = 'CalculatorError';
     this.code = code;
-    this.field = field;
+    if (field !== undefined) {
+      this.field = field;
+    }
   }
 }
 
@@ -251,5 +253,4 @@ export interface CalculatorInput extends BaseCalculatorInput {
 
 export interface CalculationResult extends BaseCalculationResult {
   totalCost: number;
-  breakdown: Record<string, number>;
 }
