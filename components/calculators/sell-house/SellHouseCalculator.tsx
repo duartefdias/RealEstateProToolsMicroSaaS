@@ -1,323 +1,433 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { 
-  calculateSellHouseCosts, 
-  formatCurrency, 
-  formatPercentage,
-  type SellHouseInputs, 
-  type SellHouseResults 
-} from '@/lib/calculators/sell-house';
-import { Calculator, Home, Euro, AlertCircle, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
+import { CalculatorWrapper } from '../shared/CalculatorWrapper'
+import { FieldRenderer } from '../shared/FieldRenderer'
+import { ResultsDisplay } from '../shared/ResultsDisplay'
+import { CALCULATOR_CONFIGS, COMMON_FIELD_CONFIGS } from '@/lib/calculators/config'
+import { calculateSellHouseCosts, validateSellHouseInput } from '@/lib/calculators/sell-house-logic'
+import { SellHouseInput, SellHouseCalculationResult, CalculatorFieldConfig } from '@/types/calculator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Calculator, TrendingUp, Home, AlertCircle } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export function SellHouseCalculator() {
-  const [inputs, setInputs] = useState<SellHouseInputs>({
-    valorVenda: 0,
-    comissaoPercentagem: 5.5,
-    valorHipoteca: 0,
-    tipoTaxa: 'variavel',
-  });
+  const { user } = useAuth()
+  const router = useRouter()
   
-  const [results, setResults] = useState<SellHouseResults | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validateInputs = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  // Form state
+  const [inputs, setInputs] = useState<Partial<SellHouseInput>>({
+    propertyValue: undefined,
+    location: '',
+    hasOutstandingMortgage: false,
+    realEstateAgentCommission: 0.06, // 6% default
+    hasCapitalGains: false,
+    isMainResidence: true
+  })
+  
+  // UI state
+  const [result, setResult] = useState<SellHouseCalculationResult | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [validationWarnings, setValidationWarnings] = useState<string[]>([])
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  
+  // Configuration
+  const config = CALCULATOR_CONFIGS['sell-house']
+  
+  // Field configurations for the form
+  const fieldConfigs: CalculatorFieldConfig[] = [
+    COMMON_FIELD_CONFIGS.propertyValue,
+    COMMON_FIELD_CONFIGS.location,
+    COMMON_FIELD_CONFIGS.realEstateAgentCommission,
+    COMMON_FIELD_CONFIGS.hasOutstandingMortgage,
+    COMMON_FIELD_CONFIGS.outstandingMortgageAmount,
+    {
+      id: 'mortgageType',
+      type: 'select',
+      label: 'Tipo de Crédito',
+      helpText: 'Tipo de taxa de juro (afeta custos de liquidação antecipada)',
+      required: false,
+      options: [
+        { value: 'variable', label: 'Taxa Variável (Euribor + spread)' },
+        { value: 'fixed', label: 'Taxa Fixa' },
+        { value: 'mixed', label: 'Taxa Mista' }
+      ],
+      validation: {},
+      defaultValue: 'variable',
+      conditional: {
+        field: 'hasOutstandingMortgage',
+        value: true,
+        operator: 'equals'
+      },
+      tier: 'free'
+    },
+    {
+      id: 'hasCapitalGains',
+      type: 'boolean',
+      label: 'Tem ganhos de capital?',
+      helpText: 'Se o valor de venda é superior ao preço de compra original',
+      required: false,
+      validation: {},
+      tier: 'free'
+    },
+    {
+      id: 'originalPurchasePrice',
+      type: 'currency',
+      label: 'Preço de Compra Original',
+      placeholder: '€ 180,000',
+      helpText: 'Valor pelo qual comprou o imóvel (para cálculo de mais-valias)',
+      required: false,
+      validation: {
+        min: 0,
+        max: 10000000
+      },
+      conditional: {
+        field: 'hasCapitalGains',
+        value: true,
+        operator: 'equals'
+      },
+      tier: 'free'
+    },
+    {
+      id: 'yearOfPurchase',
+      type: 'number',
+      label: 'Ano de Compra',
+      placeholder: '2018',
+      helpText: 'Ano em que adquiriu o imóvel (para isenção de 3 anos)',
+      required: false,
+      validation: {
+        min: 1990,
+        max: new Date().getFullYear()
+      },
+      conditional: {
+        field: 'hasCapitalGains',
+        value: true,
+        operator: 'equals'
+      },
+      tier: 'free'
+    },
+    {
+      id: 'improvementCosts',
+      type: 'currency',
+      label: 'Custos de Melhoramentos',
+      placeholder: '€ 15,000',
+      helpText: 'Valor investido em melhorias (deduzível nas mais-valias)',
+      required: false,
+      validation: {
+        min: 0,
+        max: 1000000
+      },
+      conditional: {
+        field: 'hasCapitalGains',
+        value: true,
+        operator: 'equals'
+      },
+      tier: 'free'
+    },
+    {
+      id: 'isMainResidence',
+      type: 'boolean',
+      label: 'É habitação própria permanente?',
+      helpText: 'Habitação própria permanente pode estar isenta de impostos sobre mais-valias',
+      required: false,
+      validation: {},
+      defaultValue: true,
+      conditional: {
+        field: 'hasCapitalGains',
+        value: true,
+        operator: 'equals'
+      },
+      tier: 'free'
+    }
+  ]
+  
+  // Handle input changes
+  const handleInputChange = (fieldId: string, value: any) => {
+    setInputs(prev => ({
+      ...prev,
+      [fieldId]: value
+    }))
     
-    if (!inputs.valorVenda || inputs.valorVenda <= 0) {
-      newErrors.valorVenda = 'Valor de venda é obrigatório e deve ser maior que 0';
+    // Clear validation error for this field
+    if (validationErrors[fieldId]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [fieldId]: ''
+      }))
     }
     
-    if (!inputs.comissaoPercentagem || inputs.comissaoPercentagem < 0 || inputs.comissaoPercentagem > 15) {
-      newErrors.comissaoPercentagem = 'Comissão deve estar entre 0% e 15%';
+    // Clear results when inputs change
+    if (showResults) {
+      setShowResults(false)
+      setResult(null)
     }
-    
-    if (inputs.valorHipoteca < 0) {
-      newErrors.valorHipoteca = 'Valor da hipoteca não pode ser negativo';
+  }
+  
+  // Handle calculation - this will be called by CalculatorWrapper
+  const handleCalculate = async () => {
+    try {
+      setIsCalculating(true)
+      
+      // Validate inputs
+      const validation = validateSellHouseInput(inputs)
+      
+      if (!validation.isValid) {
+        setValidationErrors(validation.errors)
+        setValidationWarnings(validation.warnings)
+        return
+      }
+      
+      setValidationErrors({})
+      setValidationWarnings(validation.warnings)
+      
+      // Perform calculation
+      const calculationResult = calculateSellHouseCosts(inputs as SellHouseInput)
+      setResult(calculationResult)
+      setShowResults(true)
+      
+      // Track calculation completion
+      if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture('calculation_completed', {
+          calculator_type: 'sell-house',
+          property_value: inputs.propertyValue,
+          location: inputs.location,
+          has_mortgage: inputs.hasOutstandingMortgage,
+          has_capital_gains: inputs.hasCapitalGains,
+          user_type: user ? 'registered' : 'anonymous'
+        })
+      }
+      
+    } catch (error) {
+      console.error('Calculation error:', error)
+      setValidationErrors({
+        general: 'Erro no cálculo. Tente novamente ou contacte o suporte.'
+      })
+    } finally {
+      setIsCalculating(false)
     }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleCalculate = () => {
-    if (!validateInputs()) {
-      return;
-    }
-    
-    setIsCalculating(true);
-    
-    // Simulate calculation delay for better UX
-    setTimeout(() => {
-      const calculationResults = calculateSellHouseCosts(inputs);
-      setResults(calculationResults);
-      setIsCalculating(false);
-    }, 300);
-  };
-
-  const handleInputChange = (field: keyof SellHouseInputs, value: string | number) => {
-    setInputs(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const handleClear = () => {
+  }
+  
+  // Reset form
+  const handleReset = () => {
     setInputs({
-      valorVenda: 0,
-      comissaoPercentagem: 5.5,
-      valorHipoteca: 0,
-      tipoTaxa: 'variavel',
-    });
-    setResults(null);
-    setErrors({});
-  };
-
+      propertyValue: undefined,
+      location: '',
+      hasOutstandingMortgage: false,
+      realEstateAgentCommission: 0.06,
+      hasCapitalGains: false,
+      isMainResidence: true
+    })
+    setResult(null)
+    setShowResults(false)
+    setValidationErrors({})
+    setValidationWarnings([])
+  }
+  
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
-      {/* Input Form */}
-      <Card className="shadow-lg">
-        <CardHeader className="pb-6">
-          <CardTitle className="flex items-center gap-3 text-2xl">
-            <Calculator className="h-6 w-6 text-blue-600" />
-            Dados do Imóvel
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Valor de Venda */}
-          <div className="space-y-2">
-            <Label htmlFor="valorVenda" className="text-sm font-medium">
-              Valor de Venda *
-            </Label>
-            <div className="relative">
-              <Euro className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                id="valorVenda"
-                type="number"
-                placeholder="Ex: 350000"
-                className={`pl-10 ${errors.valorVenda ? 'border-red-500' : ''}`}
-                value={inputs.valorVenda || ''}
-                onChange={(e) => handleInputChange('valorVenda', parseFloat(e.target.value) || 0)}
-              />
-            </div>
-            {errors.valorVenda && (
-              <p className="text-sm text-red-600">{errors.valorVenda}</p>
-            )}
-            <p className="text-xs text-gray-500">Valor estimado de venda do imóvel</p>
-          </div>
-
-          {/* Comissão */}
-          <div className="space-y-2">
-            <Label htmlFor="comissao" className="text-sm font-medium">
-              Comissão Imobiliária (%)
-            </Label>
-            <Input
-              id="comissao"
-              type="number"
-              step="0.1"
-              min="0"
-              max="15"
-              placeholder="Ex: 5.5"
-              className={errors.comissaoPercentagem ? 'border-red-500' : ''}
-              value={inputs.comissaoPercentagem || ''}
-              onChange={(e) => handleInputChange('comissaoPercentagem', parseFloat(e.target.value) || 0)}
-            />
-            {errors.comissaoPercentagem && (
-              <p className="text-sm text-red-600">{errors.comissaoPercentagem}</p>
-            )}
-            <p className="text-xs text-gray-500">Percentagem da comissão (normalmente 5-6%)</p>
-          </div>
-
-          {/* Valor da Hipoteca */}
-          <div className="space-y-2">
-            <Label htmlFor="valorHipoteca" className="text-sm font-medium">
-              Valor da Hipoteca
-            </Label>
-            <div className="relative">
-              <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                id="valorHipoteca"
-                type="number"
-                placeholder="Ex: 200000 (0 se não tem hipoteca)"
-                className={`pl-10 ${errors.valorHipoteca ? 'border-red-500' : ''}`}
-                value={inputs.valorHipoteca || ''}
-                onChange={(e) => handleInputChange('valorHipoteca', parseFloat(e.target.value) || 0)}
-              />
-            </div>
-            {errors.valorHipoteca && (
-              <p className="text-sm text-red-600">{errors.valorHipoteca}</p>
-            )}
-            <p className="text-xs text-gray-500">Valor em dívida da hipoteca (deixe 0 se não tem)</p>
-          </div>
-
-          {/* Tipo de Taxa */}
-          {inputs.valorHipoteca > 0 && (
-            <div className="space-y-2">
-              <Label htmlFor="tipoTaxa" className="text-sm font-medium">
-                Tipo de Taxa da Hipoteca
-              </Label>
-              <Select 
-                value={inputs.tipoTaxa} 
-                onValueChange={(value: 'variavel' | 'fixa') => handleInputChange('tipoTaxa', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo de taxa" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="variavel">Taxa Variável (0,5%)</SelectItem>
-                  <SelectItem value="fixa">Taxa Fixa (2%)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-gray-500">Tipo de taxa do seu contrato de hipoteca</p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
-            <Button 
-              onClick={handleCalculate} 
-              disabled={isCalculating}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              {isCalculating ? 'A calcular...' : 'Calcular Custos'}
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleClear}
-              disabled={isCalculating}
-            >
-              Limpar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Results */}
-      {results && (
-        <div className="space-y-6">
-          {/* Main Result */}
-          <Card className="shadow-lg bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-3 text-2xl text-green-800">
-                  <TrendingUp className="h-6 w-6" />
-                  Receita Líquida
-                </span>
-                <Badge className="bg-green-100 text-green-800 text-lg px-4 py-2">
-                  Resultado Final
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-green-800 mb-2">
-                {formatCurrency(results.receitaLiquida)}
-              </div>
-              <p className="text-green-700">
-                Valor que receberá após todos os custos da venda
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Cost Breakdown */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-xl">Discriminação de Custos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">Valor de Venda</p>
-                  <p className="text-xl font-semibold text-gray-900">
-                    {formatCurrency(results.inputs.valorVenda)}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">Custos Totais</p>
-                  <p className="text-xl font-semibold text-red-600">
-                    -{formatCurrency(results.custoTotal)}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">Receita Líquida</p>
-                  <p className="text-xl font-semibold text-green-600">
-                    {formatCurrency(results.receitaLiquida)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Honorários */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-lg border-b pb-2">
-                  Honorários Imobiliários
-                  <span className="float-right text-red-600">
-                    {formatCurrency(results.honorarios.totalHonorarios)}
-                  </span>
-                </h3>
-                <div className="ml-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Comissão da Imobiliária ({formatPercentage(results.inputs.comissaoPercentagem)}):</span>
-                    <span>{formatCurrency(results.honorarios.honorariosRemax)}</span>
+    <CalculatorWrapper
+      title="Calculadora de Custos de Venda de Casa"
+      description="Calcule todos os custos associados à venda do seu imóvel em Portugal"
+      calculatorType="sell-house"
+      onCalculate={handleCalculate}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Input Form */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Calculator className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div className="flex justify-between">
-                    <span>IVA sobre Comissão (23%):</span>
-                    <span>{formatCurrency(results.honorarios.ivaHonorarios)}</span>
+                  <div>
+                    <CardTitle className="text-xl">Dados do Imóvel</CardTitle>
+                    <CardDescription>
+                      Introduza os dados da propriedade para calcular custos de venda
+                    </CardDescription>
                   </div>
                 </div>
-              </div>
-
-              {/* Liquidação da Hipoteca */}
-              {results.liquidacao.valorHipoteca > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg border-b pb-2">
-                    Liquidação da Hipoteca
-                    <span className="float-right text-red-600">
-                      {formatCurrency(results.liquidacao.totalLiquidacao)}
-                    </span>
-                  </h3>
-                  <div className="ml-4 space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Capital em Dívida:</span>
-                      <span>{formatCurrency(results.liquidacao.valorHipoteca)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>
-                        Comissão de Amortização ({results.inputs.tipoTaxa === 'variavel' ? '0,5%' : '2%'}):
-                      </span>
-                      <span>{formatCurrency(results.liquidacao.custoAmortizacao)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Imposto de Selo (0,8%):</span>
-                      <span>{formatCurrency(results.liquidacao.impostoSelo)}</span>
-                    </div>
-                  </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-6">
+                {/* Validation warnings */}
+                {validationWarnings.length > 0 && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationWarnings.map((warning, index) => (
+                          <li key={index}>{warning}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {/* General error */}
+                {validationErrors.general && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{validationErrors.general}</AlertDescription>
+                  </Alert>
+                )}
+                
+                {/* Input Fields */}
+                <FieldRenderer
+                  configs={fieldConfigs}
+                  values={inputs}
+                  onChange={handleInputChange}
+                  errors={validationErrors}
+                  disabled={isCalculating}
+                  onUpgrade={() => router.push('/pricing')}
+                />
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button
+                    onClick={handleCalculate}
+                    disabled={isCalculating || !inputs.propertyValue || !inputs.location}
+                    className="flex-1"
+                  >
+                    {isCalculating ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        Calculando...
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-4 h-4 mr-2" />
+                        Calcular Custos
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={handleReset}
+                    disabled={isCalculating}
+                  >
+                    Limpar
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Warning */}
-          <Alert className="border-amber-200 bg-amber-50">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800">
-              <strong>Importante:</strong> Estes são valores estimativos baseados nos dados introduzidos. 
-              Para valores finais e vinculativos, consulte sempre a sua instituição bancária e a 
-              Autoridade Tributária. Não estão incluídos outros custos como mais-valias, 
-              obras de beneficiação, ou custos notariais adicionais.
-            </AlertDescription>
-          </Alert>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Info */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center">
+                  <Home className="w-5 h-5 mr-2 text-blue-600" />
+                  Custos Típicos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Comissão imobiliária:</span>
+                  <span className="font-medium">5-7%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Custos legais:</span>
+                  <span className="font-medium">€500-1.000</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Mais-valias:</span>
+                  <span className="font-medium">0-28%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Outros custos:</span>
+                  <span className="font-medium">€750-1.500</span>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Tips */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+                  Dicas para Poupar
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                  <p>Compare comissões de diferentes imobiliárias</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                  <p>Se é habitação própria há +3 anos, não paga mais-valias</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                  <p>Guarde recibos de melhoramentos para deduzir</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                  <p>Considere venda direta para economizar comissão</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Pro Features Teaser */}
+            {!user || (user && !['pro'].includes(user.subscription_tier || 'free')) && (
+              <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center text-purple-700">
+                    <Badge variant="secondary" className="mr-2 bg-purple-100 text-purple-700">
+                      PRO
+                    </Badge>
+                    Funcionalidades Premium
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex items-center text-purple-600">
+                    <span className="mr-2">✓</span>
+                    <span>Cálculos ilimitados</span>
+                  </div>
+                  <div className="flex items-center text-purple-600">
+                    <span className="mr-2">✓</span>
+                    <span>Relatórios detalhados PDF</span>
+                  </div>
+                  <div className="flex items-center text-purple-600">
+                    <span className="mr-2">✓</span>
+                    <span>Comparação de cenários</span>
+                  </div>
+                  <div className="flex items-center text-purple-600">
+                    <span className="mr-2">✓</span>
+                    <span>Gestão de clientes</span>
+                  </div>
+                  
+                  <Button 
+                    className="w-full mt-3 bg-purple-600 hover:bg-purple-700"
+                    onClick={() => router.push('/pricing')}
+                  >
+                    Atualizar para Pro - €9,99/mês
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
-      )}
-    </div>
-  );
+        
+        {/* Results Display */}
+        {showResults && result && (
+          <div className="mt-8">
+            <ResultsDisplay 
+              result={result} 
+              onUpgrade={() => router.push('/pricing')}
+            />
+          </div>
+        )}
+      </div>
+    </CalculatorWrapper>
+  )
 }

@@ -1,4 +1,5 @@
-import { stripe, subscriptionTiers } from './stripe'
+import { stripe } from './stripe-server'
+import { subscriptionTiers } from './stripe'
 import { createServerSupabaseClient } from '@/lib/database/supabase'
 import { StripeSubscription, StripeCustomer, SubscriptionManagement, CheckoutSessionData, UsageLimitCheck } from '@/types/payment'
 import Stripe from 'stripe'
@@ -44,7 +45,7 @@ export class SubscriptionManager {
         .order('created_at', { ascending: false })
         .limit(10)
 
-      const currentTier = subscriptionTiers[profile.subscription_tier] || subscriptionTiers.free
+      const currentTier = subscriptionTiers[profile.subscription_tier] ?? subscriptionTiers.free
       const isActiveSubscription = stripeSubscription?.status === 'active'
 
       return {
@@ -205,7 +206,7 @@ export class SubscriptionManager {
         throw new Error('Profile not found')
       }
 
-      const currentTier = subscriptionTiers[profile.subscription_tier] || subscriptionTiers.free
+      const currentTier = subscriptionTiers[profile.subscription_tier] ?? subscriptionTiers.free
       const isProUser = profile.subscription_tier === 'pro'
       
       // Pro users have unlimited access
@@ -245,7 +246,7 @@ export class SubscriptionManager {
 
       // Generate checkout URL if upgrade required
       if (requiresUpgrade) {
-        const proTier = subscriptionTiers.pro
+        const proTier = subscriptionTiers['pro']
         if (proTier.stripePriceId) {
           const checkoutData = await this.createCheckoutSession(
             userId,
@@ -422,7 +423,7 @@ export async function checkSubscriptionAccess(
 
     if (!profile) return false
 
-    const tier = subscriptionTiers[profile.subscription_tier] || subscriptionTiers.free
+    const tier = subscriptionTiers[profile.subscription_tier] ?? subscriptionTiers.free
     return Boolean(tier.limits[requiredFeature])
   } catch (error) {
     console.error('Error checking subscription access:', error)
