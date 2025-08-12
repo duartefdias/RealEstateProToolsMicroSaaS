@@ -13,7 +13,7 @@ export default function HomePage() {
       title: 'House Selling Calculator',
       titlePt: 'Calculadora de Venda',
       description: 'Calculate all costs associated with selling your property in Portugal',
-      descriptionPt: 'Calcule todos os custos associados à venda do seu imóvel em Portugal',
+      descriptionPt: 'Descubra de forma imediata todos os custos envolvidos na venda de um imóvel em Portugal.',
       icon: Home,
       estimatedSavings: '€2,000+',
       href: '/sell-house'
@@ -23,7 +23,7 @@ export default function HomePage() {
       title: 'House Buying Calculator',
       titlePt: 'Calculadora de Compra',
       description: 'IMT, stamp duty, legal fees and all costs for buying property',
-      descriptionPt: 'IMT, imposto de selo, custos legais e todas as taxas de compra',
+      descriptionPt: 'IMT, imposto de selo, custos legais e taxas de compra calculados num só clique.',
       icon: Building2,
       estimatedSavings: '€1,500+',
       href: '/buy-house'
@@ -33,7 +33,7 @@ export default function HomePage() {
       title: 'Mortgage Simulator',
       titlePt: 'Simulador de Crédito',
       description: 'Portuguese bank rates, TAEG calculations, insurance requirements',
-      descriptionPt: 'Taxas bancárias portuguesas, cálculos TAEG, seguros obrigatórios',
+      descriptionPt: 'Compare taxas bancárias, calcule a TAEG e verifique os seguros obrigatórios.',
       icon: TrendingUp,
       estimatedSavings: '€500+',
       href: '/mortgage-simulator'
@@ -41,9 +41,9 @@ export default function HomePage() {
     {
       id: 'rental-investment',
       title: 'Rental Investment',
-      titlePt: 'Investimento Arrendamento',
+      titlePt: 'Investimento em Arrendamento',
       description: 'Calculate rental yields, expenses, and investment returns',
-      descriptionPt: 'Calcule rendimentos, despesas e retorno do investimento',
+      descriptionPt: 'Analise a rentabilidade líquida e bruta, despesas e retorno previsto.',
       icon: PiggyBank,
       estimatedSavings: '€1,000+',
       href: '/rental-investment'
@@ -53,7 +53,7 @@ export default function HomePage() {
       title: 'Property Flip Calculator',
       titlePt: 'Calculadora de Renovação',
       description: 'Renovation costs, timeline, and profit calculations',
-      descriptionPt: 'Custos de renovação, prazos e cálculos de lucro',
+      descriptionPt: 'Estime custos de obras, prazos de execução e margem de lucro potencial.',
       icon: Calculator,
       estimatedSavings: '€3,000+',
       href: '/property-flip'
@@ -63,7 +63,7 @@ export default function HomePage() {
       title: 'House Switch Calculator',
       titlePt: 'Calculadora de Troca',
       description: 'Calculate costs when selling one property to buy another',
-      descriptionPt: 'Calcule custos ao vender um imóvel para comprar outro',
+      descriptionPt: 'Saiba todos os custos de vender e comprar outro imóvel de forma clara e rápida.',
       icon: DollarSign,
       estimatedSavings: '€2,500+',
       href: '/switch-house'
@@ -75,14 +75,17 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Title and Description */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground sm:text-5xl mb-6">
-            Ferramentas online para profissionais imobiliários
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl mb-6">
+            Ferramentas Imobiliárias Nº1 em Portugal — Simples, Rápidas e Precisão Profissional
           </h1>
+          <h2 className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            Calcule, simule e analise qualquer transação ou investimento imobiliário em segundos.
+            100% adaptado ao mercado português, com dados sempre atualizados.
+          </h2>
           <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            Ferramentas online e gratuitas para calcular custos de venda, compra e investimento imobiliário, 
-            simular créditos habitação, analisar rendimento de arrendamento, e muito mais. Especializada no mercado português. 
-            Não requer instalação.
+            O Real Estate Pro Tools é a plataforma que transforma decisões imobiliárias complexas em cálculos claros e rápidos.
+            Desde estimar o IMT ou o imposto de selo, até simular créditos, rendimentos de arrendamento ou custos de obras, tudo é feito em segundos — sem necessidade de instalação e com resultados fiáveis, validados por especialistas.
           </p>
         </div>
         
@@ -162,11 +165,17 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Gratuito & Rápido</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Rápido e gratuito</h3>
                 <p className="text-muted-foreground">
-                  Sem registo obrigatório, resultados instantâneos, começe já
+                  Resultados instantâneos, sem downloads e sem complicações
                 </p>
               </div>
+            </div>
+            
+            <div className="text-center mt-12">
+              <p className="text-muted-foreground mb-4">
+                Já usado por <span className="font-semibold text-foreground">muitos</span> profissionais e investidores — confiança comprovada no mercado.
+              </p>
             </div>
           </div>
         </section>
@@ -201,8 +210,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  Sistema leve e intuitivo para gerir os seus clientes, acompanhar negociações 
-                  e organizar toda a informação importante num só local.
+                  Organize contactos, acompanhe negociações e centralize toda a informação dos seus clientes num só lugar.
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Gestão de contactos e leads</li>
@@ -228,8 +236,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  Simplifique o agendamento de visitas a imóveis com sistema automatizado 
-                  de marcações e notificações para si e os seus clientes.
+                  Marque e gira visitas a imóveis com um sistema integrado de calendário e notificações automáticas.
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Calendário integrado</li>
@@ -241,19 +248,116 @@ export default function HomePage() {
 
             <div className="text-center mt-12">
               <p className="text-muted-foreground mb-4">
-                Quer ser notificado quando estas ferramentas estiverem disponíveis?
+                Registe-se para ser notificado e garantir acesso antecipado a estas funcionalidades.
               </p>
               {user ? (
                 <Button>
-                  Em desenvolvimento
+                  Acesso antecipado ativo
                 </Button>
               ) : (
                 <Button asChild>
                   <Link href="/auth/signup">
-                    Registe-se para ser notificado
+                    Registe-se para Acesso Antecipado
                   </Link>
                 </Button>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Plans Section */}
+        <section className="py-16 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Planos de Utilização
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Escolha o plano que melhor se adequa às suas necessidades
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {/* Free Plan */}
+              <div className="bg-card rounded-lg border border-border p-6 text-center flex flex-col h-full">
+                <h3 className="text-xl font-semibold text-card-foreground mb-2">Utilizador Gratuito</h3>
+                <p className="text-2xl font-bold text-primary mb-1">Grátis</p>
+                <p className="text-sm text-muted-foreground mb-6">sem registo</p>
+                <ul className="text-left space-y-3 mb-6 flex-grow">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Até 5 simulações por dia</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Todas as calculadoras</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Resultados instantâneos</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-auto" variant="outline">
+                  Começar Agora
+                </Button>
+              </div>
+
+              {/* Registered Plan */}
+              <div className="bg-card rounded-lg border border-border p-6 text-center flex flex-col h-full">
+                <h3 className="text-xl font-semibold text-card-foreground mb-2">Utilizador Registado</h3>
+                <p className="text-2xl font-bold text-primary mb-1">Grátis</p>
+                <p className="text-sm text-muted-foreground mb-6">com registo</p>
+                <ul className="text-left space-y-3 mb-6 flex-grow">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Até 10 simulações por dia</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Histórico de cálculos</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Suporte por email</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-auto" asChild>
+                  <Link href="/auth/signup">Registar Grátis</Link>
+                </Button>
+              </div>
+
+              {/* Pro Plan */}
+              <div className="bg-card rounded-lg border-2 border-primary p-6 text-center relative flex flex-col h-full">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                    Mais Popular
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold text-card-foreground mb-2">Utilizador Pro</h3>
+                <p className="text-2xl font-bold text-primary mb-1">€9,99</p>
+                <p className="text-sm text-muted-foreground mb-6">por mês</p>
+                <ul className="text-left space-y-3 mb-6 flex-grow">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm font-medium">Simulações ilimitadas</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Gestão de clientes (em breve)</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Acesso prioritário</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm">Funcionalidades beta</span>
+                  </li>
+                </ul>
+                <Button className="w-full mt-auto" asChild>
+                  <Link href="/pricing">Upgrade para Pro</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -308,28 +412,29 @@ export default function HomePage() {
             </div>
           </div>
           
-          {/* CRM Platform Reference */}
+          {/* Call-to-Action Final */}
           <div className="border-t border-border mt-8 pt-8">
-            <div className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-lg p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                  <h4 className="text-lg font-semibold text-foreground mb-2">
-                    Precisa de uma solução CRM completa?
-                  </h4>
-                  <p className="text-muted-foreground">
-                    Descubra a nossa plataforma CRM completa para agências imobiliárias com gestão 
-                    avançada de clientes, propriedades, contratos e muito mais.
-                  </p>
-                </div>
-                <div className="mt-4 md:mt-0">
-                  <Link 
-                    href="https://www.realestateprotools.com/crm" 
-                    className="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-md font-medium transition-colors"
-                  >
-                    <span>Ver CRM Completo</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
+            <div className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-lg p-8 text-center">
+              <h4 className="text-2xl font-bold text-foreground mb-3">
+                Tome decisões imobiliárias com confiança.
+              </h4>
+              <p className="text-lg text-muted-foreground mb-6">
+                Experimente o Real Estate Pro Tools agora — grátis e sem compromisso.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link 
+                  href="/sell-house" 
+                  className="inline-flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-md font-medium transition-colors"
+                >
+                  <span>Começar Agora</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link 
+                  href="/pricing" 
+                  className="inline-flex items-center justify-center space-x-2 bg-background hover:bg-background/90 text-foreground border border-border px-8 py-3 rounded-md font-medium transition-colors"
+                >
+                  <span>Ver Planos Pro</span>
+                </Link>
               </div>
             </div>
           </div>
