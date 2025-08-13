@@ -46,12 +46,6 @@ export default function MainNavbar() {
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  href="/calculators" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Calculators
-                </Link>
                 {profile?.subscription_tier === 'pro' && (
                   <Link 
                     href="/client-management" 

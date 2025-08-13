@@ -17,9 +17,15 @@ export const checkUsageLimit = async (
   ipAddress?: string,
   sessionId?: string
 ): Promise<UsageCheck> => {
+  console.log('🔍 [usage-tracking] checkUsageLimit called')
+  console.log('🔍 [usage-tracking] User ID:', userId)
+  console.log('🔍 [usage-tracking] IP Address:', ipAddress)
+  console.log('🔍 [usage-tracking] Session ID:', sessionId)
+  
   const supabase = createServerSupabaseClient()
 
   if (userId) {
+    console.log('🔍 [usage-tracking] Processing registered user...')
     // For registered users, use the subscription manager
     try {
       const usageCheck = await subscriptionManager.checkUsageLimit(userId)
@@ -37,7 +43,7 @@ export const checkUsageLimit = async (
           break
       }
 
-      return {
+      const result = {
         allowed: usageCheck.allowed,
         remaining: usageCheck.remaining === Infinity ? Infinity : usageCheck.remaining,
         used: 0, // This would need to be fetched from the profile
@@ -47,8 +53,11 @@ export const checkUsageLimit = async (
         userType,
         ...(usageCheck.checkoutUrl && { checkoutUrl: usageCheck.checkoutUrl })
       }
+      
+      console.log('✅ [usage-tracking] Registered user usage check result:', result)
+      return result
     } catch (error) {
-      console.error('Error checking user usage limit:', error)
+      console.error('❌ [usage-tracking] Error checking user usage limit:', error)
       return {
         allowed: false,
         remaining: 0,
@@ -60,8 +69,10 @@ export const checkUsageLimit = async (
       }
     }
   } else {
+    console.log('🔍 [usage-tracking] Processing anonymous user...')
     // Check for anonymous users
     if (!ipAddress || !sessionId) {
+      console.log('❌ [usage-tracking] Missing IP address or session ID for anonymous user')
       return {
         allowed: false,
         remaining: 0,
@@ -74,26 +85,37 @@ export const checkUsageLimit = async (
     }
 
     try {
-      const { data: usage } = await supabase.rpc('get_anonymous_usage', {
+      console.log('🔍 [usage-tracking] Calling get_anonymous_usage function...')
+      const { data: usage, error } = await supabase.rpc('get_anonymous_usage', {
         ip_addr: ipAddress,
         session_id: sessionId
       })
+
+      if (error) {
+        console.error('❌ [usage-tracking] Database function error:', error)
+        throw error
+      }
+
+      console.log('🔍 [usage-tracking] get_anonymous_usage result:', usage)
 
       const limit = 5
       const currentUsage = usage || 0
       const remaining = Math.max(0, limit - currentUsage)
       
-      return {
+      const result = {
         allowed: remaining > 0,
         remaining,
         used: currentUsage,
         limit,
         resetTime: getNextResetTime(),
         requiresUpgrade: remaining === 0,
-        userType: 'anonymous',
+        userType: 'anonymous' as const,
       }
+      
+      console.log('✅ [usage-tracking] Anonymous user usage check result:', result)
+      return result
     } catch (error) {
-      console.error('Error checking anonymous usage:', error)
+      console.error('❌ [usage-tracking] Error checking anonymous usage:', error)
       // Return safe defaults
       return {
         allowed: false,

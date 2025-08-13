@@ -3,58 +3,80 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/auth/server'
 import { subscriptionManager } from '@/lib/payments/subscription-manager'
 import { createServerSupabaseClient } from '@/lib/database/supabase'
+import { getClientIP, generateSessionId } from '@/lib/utils/client-ip'
 
 export async function POST(request: NextRequest) {
   try {
     const headersList = await headers()
     const { calculatorType, userId, inputData, resultData } = await request.json()
     
-    // Get IP address for tracking
-    const ipAddress = headersList.get('x-forwarded-for') || 
-                     headersList.get('x-real-ip') || 
-                     '127.0.0.1'
+    console.log('📈 [API /usage/increment] Request received')
+    console.log('📈 [API /usage/increment] Calculator Type:', calculatorType)
+    console.log('📈 [API /usage/increment] User ID:', userId)
+    
+    // Get client IP address for tracking
+    const ipAddress = getClientIP(headersList)
     
     const sessionId = headersList.get('x-session-id') || 
-                      `${ipAddress}-${Date.now()}`
+                      generateSessionId(ipAddress, headersList.get('user-agent') || undefined)
+
+    console.log('📈 [API /usage/increment] IP Address:', ipAddress)
+    console.log('📈 [API /usage/increment] Session ID:', sessionId)
+    console.log('📈 [API /usage/increment] User Agent:', headersList.get('user-agent')?.slice(0, 100))
 
     const supabase = createServerSupabaseClient()
 
     if (userId) {
+      console.log('📈 [API /usage/increment] Processing registered user...')
+      
       // For registered users - increment usage and track calculation
       const usageIncremented = await subscriptionManager.incrementUsage(userId)
       
       if (usageIncremented) {
         // Track the calculation
-        await supabase
+        const { error: insertError } = await supabase
           .from('calculations')
           .insert({
             user_id: userId,
             calculator_type: calculatorType,
             input_data: inputData || {},
-            result_data: resultData || {},
             ip_address: ipAddress
           })
         
-        console.log(`📊 Calculation tracked for user ${userId}: ${calculatorType}`)
+        if (insertError) {
+          console.error('❌ [API /usage/increment] Error inserting calculation for registered user:', insertError)
+        } else {
+          console.log(`✅ [API /usage/increment] Calculation tracked for user ${userId}: ${calculatorType}`)
+        }
       }
 
       return NextResponse.json({ success: usageIncremented })
     } else {
-      // For anonymous users - track calculation without usage increment
-      const { data } = await supabase.rpc('track_anonymous_calculation', {
+      console.log('📈 [API /usage/increment] Processing anonymous user...')
+      
+      // For anonymous users - track calculation using the database function
+      const { data, error } = await supabase.rpc('track_anonymous_calculation', {
         ip_addr: ipAddress,
         session_id: sessionId,
         calculator_type: calculatorType,
-        input_data: inputData || {},
-        result_data: resultData || {}
+        input_data: inputData || {}
       })
 
-      console.log(`📊 Anonymous calculation tracked: ${calculatorType}`)
+      if (error) {
+        console.error('❌ [API /usage/increment] Error tracking anonymous calculation:', error)
+        return NextResponse.json(
+          { error: 'Failed to track anonymous calculation', details: error },
+          { status: 500 }
+        )
+      }
+
+      console.log(`✅ [API /usage/increment] Anonymous calculation tracked: ${calculatorType}`)
+      console.log(`✅ [API /usage/increment] Calculation ID: ${data}`)
       return NextResponse.json({ success: true, calculationId: data })
     }
 
   } catch (error) {
-    console.error('Error incrementing usage:', error)
+    console.error('❌ [API /usage/increment] Error incrementing usage:', error)
     return NextResponse.json(
       { error: 'Failed to track calculation' },
       { status: 500 }

@@ -14,10 +14,12 @@ import { Button } from '@/components/ui/button'
 import { Calculator, TrendingUp, Home, AlertCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useCalculatorContext } from '@/contexts/CalculatorContext'
 
 export function SellHouseCalculator() {
   const { user, profile } = useAuth()
   const router = useRouter()
+  const { onCalculate: contextOnCalculate } = useCalculatorContext()
   
   // Form state
   const [inputs, setInputs] = useState<Partial<SellHouseInput>>({
@@ -169,27 +171,58 @@ export function SellHouseCalculator() {
   
   // Handle calculation - this will be called by CalculatorWrapper
   const handleCalculate = async () => {
+    console.log('🧮 [SellHouseCalculator] handleCalculate called')
+    
     try {
       setIsCalculating(true)
       
       // Validate inputs
+      console.log('🧮 [SellHouseCalculator] Validating inputs:', inputs)
       const validation = validateSellHouseInput(inputs)
       
       if (!validation.isValid) {
+        console.log('❌ [SellHouseCalculator] Validation failed:', validation.errors)
         setValidationErrors(validation.errors)
         setValidationWarnings(validation.warnings)
         return
       }
       
+      console.log('✅ [SellHouseCalculator] Validation passed, performing calculation...')
       setValidationErrors({})
       setValidationWarnings(validation.warnings)
       
       // Perform calculation
       const calculationResult = calculateSellHouseCosts(inputs as SellHouseInput)
+      console.log('✅ [SellHouseCalculator] Calculation completed:', calculationResult)
       setResult(calculationResult)
       setShowResults(true)
       
-      // Track calculation completion
+      // Track calculation in database
+      console.log('📊 [SellHouseCalculator] Tracking calculation in database...')
+      try {
+        const response = await fetch('/api/usage/increment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            calculatorType: 'sell-house',
+            userId: user?.id,
+            inputData: inputs
+          })
+        })
+        
+        const responseData = await response.json()
+        console.log('📊 [SellHouseCalculator] Usage tracking response:', responseData)
+        
+        if (!response.ok) {
+          console.error('❌ [SellHouseCalculator] Failed to track calculation:', responseData)
+        } else {
+          console.log('✅ [SellHouseCalculator] Calculation tracked successfully')
+        }
+      } catch (trackingError) {
+        console.error('❌ [SellHouseCalculator] Error tracking calculation:', trackingError)
+      }
+      
+      // Track calculation completion in PostHog
       if (typeof window !== 'undefined' && (window as any).posthog) {
         (window as any).posthog.capture('calculation_completed', {
           calculator_type: 'sell-house',
@@ -202,7 +235,7 @@ export function SellHouseCalculator() {
       }
       
     } catch (error) {
-      console.error('Calculation error:', error)
+      console.error('❌ [SellHouseCalculator] Calculation error:', error)
       setValidationErrors({
         general: 'Erro no cálculo. Tente novamente ou contacte o suporte.'
       })
@@ -210,6 +243,21 @@ export function SellHouseCalculator() {
       setIsCalculating(false)
     }
   }
+
+  // Handle button click - use context function if available
+  const handleCalculateButtonClick = async () => {
+    console.log('🔘 [SellHouseCalculator] Calculate button clicked')
+    console.log('🔘 [SellHouseCalculator] Context onCalculate available:', !!contextOnCalculate)
+    
+    if (contextOnCalculate) {
+      console.log('🔘 [SellHouseCalculator] Using context onCalculate (wrapper will handle usage tracking)')
+      await contextOnCalculate()
+    } else {
+      console.log('🔘 [SellHouseCalculator] No context onCalculate, calling handleCalculate directly')
+      await handleCalculate()
+    }
+  }
+
   
   // Reset form
   const handleReset = () => {
@@ -288,7 +336,7 @@ export function SellHouseCalculator() {
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4 border-t">
                   <Button
-                    onClick={handleCalculate}
+                    onClick={handleCalculateButtonClick}
                     disabled={isCalculating || !inputs.propertyValue || !inputs.location}
                     className="flex-1"
                   >

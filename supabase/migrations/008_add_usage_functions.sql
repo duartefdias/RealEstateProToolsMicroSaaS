@@ -125,7 +125,7 @@ BEGIN
   SELECT COUNT(*)::INTEGER INTO usage_count
   FROM public.calculations
   WHERE ip_address = ip_addr
-    AND (session_id = get_anonymous_usage.session_id OR user_id IS NULL)
+    AND (calculations.session_id = get_anonymous_usage.session_id OR user_id IS NULL)
     AND DATE(created_at) = today_date;
   
   RETURN COALESCE(usage_count, 0);
@@ -330,10 +330,9 @@ CREATE INDEX IF NOT EXISTS idx_calculations_user_daily
 ON public.calculations(user_id, created_at) 
 WHERE user_id IS NOT NULL;
 
--- Create partial index for today's calculations
-CREATE INDEX IF NOT EXISTS idx_calculations_today 
-ON public.calculations(user_id, ip_address, session_id) 
-WHERE DATE(created_at) = CURRENT_DATE;
+-- Create index for efficient date-based queries (using created_at directly)
+CREATE INDEX IF NOT EXISTS idx_calculations_created_at 
+ON public.calculations(created_at, user_id, ip_address, session_id);
 
 -- Add comment
 COMMENT ON FUNCTION increment_daily_calculations IS 'Safely increment user daily calculation counter with automatic reset';

@@ -2,20 +2,26 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/auth/server'
 import { checkUsageLimit } from '@/lib/auth/usage-tracking'
+import { getClientIP, generateSessionId } from '@/lib/utils/client-ip'
 
 export async function POST(request: NextRequest) {
   try {
     const headersList = await headers()
     const { calculatorType, userId } = await request.json()
     
-    // Get IP address and session info for anonymous users
-    const ipAddress = headersList.get('x-forwarded-for') || 
-                     headersList.get('x-real-ip') || 
-                     '127.0.0.1'
+    console.log('📊 [API /usage/check] Request received')
+    console.log('📊 [API /usage/check] Calculator Type:', calculatorType)
+    console.log('📊 [API /usage/check] User ID:', userId)
     
-    // Generate session ID for anonymous users (you might want to use cookies)
+    // Get client IP address for tracking
+    const ipAddress = getClientIP(headersList)
+    
+    // Generate session ID for anonymous users
     const sessionId = headersList.get('x-session-id') || 
-                      `${ipAddress}-${Date.now()}`
+                      generateSessionId(ipAddress, headersList.get('user-agent') || undefined)
+    
+    console.log('📊 [API /usage/check] IP Address:', ipAddress)
+    console.log('📊 [API /usage/check] Session ID:', sessionId)
 
     // Check usage limits
     const usageCheck = await checkUsageLimit(
@@ -24,7 +30,9 @@ export async function POST(request: NextRequest) {
       sessionId
     )
 
-    return NextResponse.json({
+    console.log('📊 [API /usage/check] Usage check result:', usageCheck)
+
+    const response = {
       allowed: usageCheck.allowed,
       remaining: usageCheck.remaining === Infinity ? -1 : usageCheck.remaining,
       used: usageCheck.used,
@@ -33,10 +41,13 @@ export async function POST(request: NextRequest) {
       requiresUpgrade: usageCheck.requiresUpgrade,
       userType: usageCheck.userType,
       checkoutUrl: usageCheck.checkoutUrl
-    })
+    }
+
+    console.log('📊 [API /usage/check] Response:', response)
+    return NextResponse.json(response)
 
   } catch (error) {
-    console.error('Error checking usage limits:', error)
+    console.error('❌ [API /usage/check] Error checking usage limits:', error)
     return NextResponse.json(
       { error: 'Failed to check usage limits' },
       { status: 500 }

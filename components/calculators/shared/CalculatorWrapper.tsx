@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -11,6 +11,7 @@ import { CompactPricingCard } from '@/components/payments/PricingPlans'
 import { AlertCircle, Calculator, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/lib/auth/context'
 import { UsageLimit } from '@/types/calculator'
+import { CalculatorProvider } from '@/contexts/CalculatorContext'
 
 interface CalculatorWrapperProps {
   title: string
@@ -56,6 +57,10 @@ export function CalculatorWrapper({
   }, [user])
 
   const checkUsageLimits = async () => {
+    console.log('🔍 [CalculatorWrapper] checkUsageLimits called')
+    console.log('🔍 [CalculatorWrapper] Calculator Type:', calculatorType)
+    console.log('🔍 [CalculatorWrapper] User ID:', user?.id)
+    
     setIsLoading(true)
     try {
       const response = await fetch('/api/usage/check', {
@@ -67,30 +72,43 @@ export function CalculatorWrapper({
         })
       })
 
+      console.log('🔍 [CalculatorWrapper] checkUsageLimits response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('🔍 [CalculatorWrapper] checkUsageLimits response data:', data)
         setUsageInfo(data)
         
         // Show upgrade prompt after 3rd calculation for non-pro users
         if (data.used >= 3 && data.userType !== 'pro' && !data.requiresUpgrade) {
+          console.log('🔍 [CalculatorWrapper] Showing upgrade prompt for user with 3+ calculations')
           setShowUpgradePrompt(true)
         }
+      } else {
+        console.error('❌ [CalculatorWrapper] checkUsageLimits failed with status:', response.status)
       }
     } catch (error) {
-      console.error('Error checking usage limits:', error)
+      console.error('❌ [CalculatorWrapper] Error checking usage limits:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleCalculationAttempt = async () => {
+  const handleCalculationAttempt = async (): Promise<void> => {
+    console.log('🔄 [CalculatorWrapper] handleCalculationAttempt called')
+    console.log('🔄 [CalculatorWrapper] Current usage info:', usageInfo)
+    console.log('🔄 [CalculatorWrapper] User ID:', user?.id)
+    console.log('🔄 [CalculatorWrapper] Calculator type:', calculatorType)
+    
     if (!usageInfo) {
+      console.log('⚠️ [CalculatorWrapper] No usage info, checking limits...')
       await checkUsageLimits()
       return
     }
 
     // If user has reached limit, show blocking modal
     if (!usageInfo.allowed) {
+      console.log('🚫 [CalculatorWrapper] Usage limit reached, showing modal')
       const modalProps: { usageInfo: UsageLimit; resetTime: Date; checkoutUrl?: string } = {
         usageInfo: {
           userType: usageInfo.userType,
@@ -109,27 +127,15 @@ export function CalculatorWrapper({
       return
     }
 
-    // Track the calculation
+    console.log('✅ [CalculatorWrapper] Usage allowed, calling calculator...')
+    
+    // Call the calculation logic (calculator will handle its own usage tracking)
     try {
-      const response = await fetch('/api/usage/increment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          calculatorType,
-          userId: user?.id
-        })
-      })
-
-      if (response.ok) {
-        // Call the original onCalculate callback
-        onCalculate?.()
-        // Refresh usage info
-        await checkUsageLimits()
-      }
-    } catch (error) {
-      console.error('Error tracking calculation:', error)
-      // Still allow calculation if tracking fails
       onCalculate?.()
+      // Refresh usage info after calculation
+      setTimeout(() => checkUsageLimits(), 1000) // Small delay to allow tracking to complete
+    } catch (error) {
+      console.error('❌ [CalculatorWrapper] Error during calculation:', error)
     }
   }
 
@@ -151,6 +157,8 @@ export function CalculatorWrapper({
       default: return 'Desconhecido'
     }
   }
+
+  // No need for wrappedOnCalculate since handleCalculationAttempt now calls onCalculate directly
 
   return (
     <div className="space-y-6">
@@ -279,12 +287,14 @@ export function CalculatorWrapper({
       )}
 
       {/* Calculator Content */}
-      <div 
-        onClick={!isUsageLimitModalOpen && !usageInfo?.allowed ? handleCalculationAttempt : undefined}
-        className={!usageInfo?.allowed ? 'cursor-pointer' : ''}
-      >
-        {children}
-      </div>
+      <CalculatorProvider onCalculate={handleCalculationAttempt}>
+        <div 
+          onClick={!isUsageLimitModalOpen && !usageInfo?.allowed ? handleCalculationAttempt : undefined}
+          className={!usageInfo?.allowed ? 'cursor-pointer' : ''}
+        >
+          {children}
+        </div>
+      </CalculatorProvider>
 
       {/* Usage Limit Modal */}
       {UsageLimitModalComponent}
