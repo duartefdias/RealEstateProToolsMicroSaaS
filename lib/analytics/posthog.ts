@@ -44,11 +44,12 @@ export const getPostHog = () => {
 }
 
 // User identification and properties
-export const identifyUser = (userId: string, properties: Record<string, any>) => {
+export const identifyUser = (email: string, properties: Record<string, any>) => {
   const ph = getPostHog()
-  if (ph) {
-    ph.identify(userId, {
-      email: properties.email,
+  if (ph && email) {
+    ph.identify(email, {
+      email: email,
+      user_id: properties.user_id, // Keep user_id as a property for reference
       subscription_tier: properties.subscription_tier,
       signup_date: properties.created_at,
       country: 'Portugal', // Default, can be detected

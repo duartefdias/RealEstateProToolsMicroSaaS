@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/auth/client'
 import { Profile, UsageLimit } from '@/lib/database/types'
+import { identifyUser } from '@/lib/analytics/posthog'
 
 interface AuthContextType {
   // User state
@@ -62,6 +63,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // If we have a user, fetch their profile in the background
           if (session?.user) {
             console.log('🔐 Initial session found, fetching profile for:', session.user.id)
+            
+            // Identify user in PostHog immediately with basic info from auth
+            if (session.user.email) {
+              identifyUser(session.user.email, {
+                user_id: session.user.id,
+                email: session.user.email,
+                created_at: session.user.created_at
+              })
+            }
+            
             // Don't await - let profile load in background so UI renders immediately
             fetchProfile(session.user.id)
             fetchUsageLimit(session.user.id)
@@ -96,6 +107,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Fetch profile when user signs in (but don't block the UI)
           if (session?.user) {
             console.log('🔐 Fetching profile for user:', session.user.id)
+            
+            // Identify user in PostHog immediately with basic info from auth
+            if (session.user.email) {
+              identifyUser(session.user.email, {
+                user_id: session.user.id,
+                email: session.user.email,
+                created_at: session.user.created_at
+              })
+            }
+            
             fetchProfile(session.user.id) // Don't await - let it run in background
             fetchUsageLimit(session.user.id) // Don't await - let it run in background
           }
@@ -144,6 +165,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         subscriptionTier: data?.subscription_tier
       })
       setProfile(data)
+      
+      // Identify user in PostHog with email as primary identifier
+      if (user?.email && data) {
+        identifyUser(user.email, {
+          user_id: userId,
+          full_name: data.full_name,
+          subscription_tier: data.subscription_tier,
+          created_at: data.created_at,
+          language: data.preferred_language || 'pt'
+        })
+      }
     } catch (error) {
       console.error('🔐 Exception while fetching profile:', error)
     } finally {
@@ -219,7 +251,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       
       console.log('🔐 Initiating Google OAuth sign-in...')
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
