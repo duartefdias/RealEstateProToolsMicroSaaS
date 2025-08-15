@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { CalculatorWrapper } from '../shared/CalculatorWrapper'
 import { FieldRenderer } from '../shared/FieldRenderer'
 import { ResultsDisplay } from '../shared/ResultsDisplay'
-import { CALCULATOR_CONFIGS, COMMON_FIELD_CONFIGS } from '@/lib/calculators/config'
+import { COMMON_FIELD_CONFIGS } from '@/lib/calculators/config'
 import { calculateSellHouseCosts, validateSellHouseInput } from '@/lib/calculators/sell-house-logic'
 import { SellHouseInput, BaseCalculationResult, CalculatorFieldConfig } from '@/types/calculator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,8 +36,6 @@ export function SellHouseCalculator() {
   const [isCalculating, setIsCalculating] = useState(false)
   const [showResults, setShowResults] = useState(false)
   
-  // Configuration
-  const config = CALCULATOR_CONFIGS['sell-house']
   
   // Field configurations for the form
   const fieldConfigs: CalculatorFieldConfig[] = [
@@ -197,29 +194,33 @@ export function SellHouseCalculator() {
       setResult(calculationResult)
       setShowResults(true)
       
-      // Track calculation in database
-      console.log('📊 [SellHouseCalculator] Tracking calculation in database...')
-      try {
-        const response = await fetch('/api/usage/increment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            calculatorType: 'sell-house',
-            userId: user?.id,
-            inputData: inputs
+      // Track calculation in database only if not using wrapper context
+      if (!contextOnCalculate) {
+        console.log('📊 [SellHouseCalculator] Tracking calculation in database...')
+        try {
+          const response = await fetch('/api/usage/increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              calculatorType: 'sell-house',
+              userId: user?.id,
+              inputData: inputs
+            })
           })
-        })
-        
-        const responseData = await response.json()
-        console.log('📊 [SellHouseCalculator] Usage tracking response:', responseData)
-        
-        if (!response.ok) {
-          console.error('❌ [SellHouseCalculator] Failed to track calculation:', responseData)
-        } else {
-          console.log('✅ [SellHouseCalculator] Calculation tracked successfully')
+          
+          const responseData = await response.json()
+          console.log('📊 [SellHouseCalculator] Usage tracking response:', responseData)
+          
+          if (!response.ok) {
+            console.error('❌ [SellHouseCalculator] Failed to track calculation:', responseData)
+          } else {
+            console.log('✅ [SellHouseCalculator] Calculation tracked successfully')
+          }
+        } catch (trackingError) {
+          console.error('❌ [SellHouseCalculator] Error tracking calculation:', trackingError)
         }
-      } catch (trackingError) {
-        console.error('❌ [SellHouseCalculator] Error tracking calculation:', trackingError)
+      } else {
+        console.log('📊 [SellHouseCalculator] Skipping usage tracking - wrapper will handle it')
       }
       
       // Track calculation completion in PostHog
@@ -275,13 +276,7 @@ export function SellHouseCalculator() {
   }
   
   return (
-    <CalculatorWrapper
-      title="Calculadora de Custos de Venda de Casa"
-      description="Calcule todos os custos associados à venda do seu imóvel em Portugal"
-      calculatorType="sell-house"
-      onCalculate={handleCalculate}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Input Form */}
           <div className="lg:col-span-2">
@@ -473,7 +468,6 @@ export function SellHouseCalculator() {
             />
           </div>
         )}
-      </div>
-    </CalculatorWrapper>
+    </div>
   )
 }

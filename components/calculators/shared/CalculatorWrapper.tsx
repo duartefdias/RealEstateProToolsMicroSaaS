@@ -44,6 +44,7 @@ export function CalculatorWrapper({
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
+  const [isCalculating, setIsCalculating] = useState(false)
   
   const {
     showUsageLimitModal,
@@ -99,43 +100,123 @@ export function CalculatorWrapper({
     console.log('🔄 [CalculatorWrapper] Current usage info:', usageInfo)
     console.log('🔄 [CalculatorWrapper] User ID:', user?.id)
     console.log('🔄 [CalculatorWrapper] Calculator type:', calculatorType)
+    console.log('🔄 [CalculatorWrapper] Is calculating:', isCalculating)
     
-    if (!usageInfo) {
-      console.log('⚠️ [CalculatorWrapper] No usage info, checking limits...')
-      await checkUsageLimits()
+    // Prevent multiple simultaneous calculations
+    if (isCalculating) {
+      console.log('⚠️ [CalculatorWrapper] Already calculating, ignoring request')
       return
     }
 
-    // If user has reached limit, show blocking modal
-    if (!usageInfo.allowed) {
-      console.log('🚫 [CalculatorWrapper] Usage limit reached, showing modal')
-      const modalProps: { usageInfo: UsageLimit; resetTime: Date; checkoutUrl?: string } = {
-        usageInfo: {
-          userType: usageInfo.userType,
-          dailyLimit: usageInfo.limit,
-          currentUsage: usageInfo.used,
-          canCalculate: usageInfo.allowed,
-          resetTime: new Date(usageInfo.resetTime),
-          requiresUpgrade: usageInfo.requiresUpgrade || false
-        } as UsageLimit,
-        resetTime: new Date(usageInfo.resetTime)
-      }
-      if (usageInfo.checkoutUrl) {
-        modalProps.checkoutUrl = usageInfo.checkoutUrl
-      }
-      showUsageLimitModal(modalProps)
-      return
-    }
+    // Set calculating state immediately to prevent multiple clicks
+    setIsCalculating(true)
 
-    console.log('✅ [CalculatorWrapper] Usage allowed, calling calculator...')
-    
-    // Call the calculation logic (calculator will handle its own usage tracking)
     try {
-      onCalculate?.()
-      // Refresh usage info after calculation
-      setTimeout(() => checkUsageLimits(), 1000) // Small delay to allow tracking to complete
+      // ALWAYS check usage limits from server before allowing calculation
+      console.log('🔍 [CalculatorWrapper] Checking fresh usage limits from server...')
+      const response = await fetch('/api/usage/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          calculatorType,
+          userId: user?.id
+        })
+      })
+
+      if (!response.ok) {
+        console.error('❌ [CalculatorWrapper] Failed to check usage limits')
+        return
+      }
+
+      const freshUsageInfo = await response.json()
+      console.log('🔍 [CalculatorWrapper] Fresh usage info from server:', freshUsageInfo)
+      
+      // Update state with fresh info
+      setUsageInfo(freshUsageInfo)
+
+      // Check CURRENT usage limits immediately - block if user has already reached limit
+      console.log('🔍 [CalculatorWrapper] Fresh limits - allowed:', freshUsageInfo.allowed, 'remaining:', freshUsageInfo.remaining, 'used:', freshUsageInfo.used, 'limit:', freshUsageInfo.limit)
+      
+      if (!freshUsageInfo.allowed || freshUsageInfo.remaining <= 0) {
+        console.log('🚫 [CalculatorWrapper] Usage limit reached after server check, showing modal')
+        console.log('🚫 [CalculatorWrapper] Limit details:', {
+          allowed: freshUsageInfo.allowed,
+          remaining: freshUsageInfo.remaining,
+          used: freshUsageInfo.used,
+          limit: freshUsageInfo.limit,
+          userType: freshUsageInfo.userType
+        })
+        
+        const modalProps: { usageInfo: UsageLimit; resetTime: Date; checkoutUrl?: string } = {
+          usageInfo: {
+            userType: freshUsageInfo.userType,
+            dailyLimit: freshUsageInfo.limit,
+            currentUsage: freshUsageInfo.used,
+            canCalculate: freshUsageInfo.allowed,
+            resetTime: new Date(freshUsageInfo.resetTime),
+            requiresUpgrade: freshUsageInfo.requiresUpgrade || false
+          } as UsageLimit,
+          resetTime: new Date(freshUsageInfo.resetTime)
+        }
+        if (freshUsageInfo.checkoutUrl) {
+          modalProps.checkoutUrl = freshUsageInfo.checkoutUrl
+        }
+        showUsageLimitModal(modalProps)
+        return
+      }
+
+      console.log('✅ [CalculatorWrapper] Usage allowed after server check, proceeding with calculation...')
+      
+      // IMMEDIATELY update usage info to reflect the calculation that's about to happen
+      // This ensures the next click will be blocked even if this request is still processing
+      const newUsed = freshUsageInfo.used + 1
+      const newRemaining = Math.max(0, freshUsageInfo.remaining - 1)
+      const immediateUsageUpdate = {
+        ...freshUsageInfo,
+        used: newUsed,
+        remaining: newRemaining,
+        allowed: freshUsageInfo.userType === 'pro' || newRemaining > 0
+      }
+      setUsageInfo(immediateUsageUpdate)
+      
+      // Execute the calculation
+      await onCalculate?.()
+      console.log('✅ [CalculatorWrapper] Calculation completed, tracking usage...')
+      
+      // Track the calculation in the database
+      try {
+        const response = await fetch('/api/usage/increment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            calculatorType,
+            userId: user?.id,
+            inputData: {} // Calculator-specific data would be passed here if needed
+          })
+        })
+        
+        const responseData = await response.json()
+        console.log('📊 [CalculatorWrapper] Usage tracking response:', responseData)
+        
+        if (!response.ok) {
+          console.error('❌ [CalculatorWrapper] Failed to track usage:', responseData)
+          // If tracking failed, revert the usage update but keep the calculation
+          setUsageInfo(freshUsageInfo)
+        }
+      } catch (trackingError) {
+        console.error('❌ [CalculatorWrapper] Error tracking usage:', trackingError)
+        // If tracking failed, revert the usage update but keep the calculation
+        setUsageInfo(freshUsageInfo)
+      }
+      
+      // Don't refresh again since we just checked - this prevents unnecessary requests
+      
     } catch (error) {
       console.error('❌ [CalculatorWrapper] Error during calculation:', error)
+      // Revert any usage updates if calculation failed
+      await checkUsageLimits() // Get fresh state from server
+    } finally {
+      setIsCalculating(false)
     }
   }
 
@@ -184,6 +265,7 @@ export function CalculatorWrapper({
                 {usageInfo.userType !== 'pro' && (
                   <p className="text-sm text-gray-600 mt-1">
                     {usageInfo.remaining} de {usageInfo.limit} cálculos restantes
+                    {isCalculating && <span className="ml-1 text-orange-600">(calculando...)</span>}
                   </p>
                 )}
               </div>
@@ -259,7 +341,9 @@ export function CalculatorWrapper({
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      usageInfo.remaining <= 2 && usageInfo.remaining > 0
+                      isCalculating
+                        ? 'bg-orange-500 animate-pulse'
+                        : usageInfo.remaining <= 2 && usageInfo.remaining > 0
                         ? 'bg-yellow-500'
                         : usageInfo.remaining === 0
                         ? 'bg-red-500'
@@ -290,7 +374,7 @@ export function CalculatorWrapper({
       <CalculatorProvider onCalculate={handleCalculationAttempt}>
         <div 
           onClick={!isUsageLimitModalOpen && !usageInfo?.allowed ? handleCalculationAttempt : undefined}
-          className={!usageInfo?.allowed ? 'cursor-pointer' : ''}
+          className={`${!usageInfo?.allowed ? 'cursor-pointer' : ''} ${isCalculating || isUsageLimitModalOpen ? 'pointer-events-none opacity-70' : ''}`}
         >
           {children}
         </div>

@@ -396,7 +396,10 @@ export function UsageLimitModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      onClick={(e) => e.stopPropagation()} // Prevent clicking outside to close
+    >
       <div className="w-full max-w-md mx-4">
         <UsageLimitBanner
           usageInfo={usageInfo}

@@ -43,10 +43,28 @@ export const checkUsageLimit = async (
           break
       }
 
+      // Get the actual usage from the profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('daily_calculations_used, last_calculation_reset')
+        .eq('id', userId)
+        .single()
+
+      let currentUsed = profile?.daily_calculations_used || 0
+      
+      // Check if usage needs to be reset for new day
+      const today = new Date().toISOString().split('T')[0]
+      const lastReset = profile?.last_calculation_reset
+      const lastResetStr = lastReset ? new Date(lastReset).toISOString().split('T')[0] : null
+      
+      if (today !== lastResetStr) {
+        currentUsed = 0
+      }
+
       const result = {
         allowed: usageCheck.allowed,
         remaining: usageCheck.remaining === Infinity ? Infinity : usageCheck.remaining,
-        used: 0, // This would need to be fetched from the profile
+        used: currentUsed,
         limit: usageCheck.currentTier.limits.dailyCalculations,
         resetTime: usageCheck.resetTime,
         requiresUpgrade: usageCheck.requiresUpgrade,

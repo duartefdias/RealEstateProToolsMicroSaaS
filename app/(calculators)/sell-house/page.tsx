@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SellHouseCalculator } from '@/components/calculators/sell-house/SellHouseCalculator';
+import { CalculatorWrapper } from '@/components/calculators/shared/CalculatorWrapper';
 
 export const metadata: Metadata = {
   title: 'Calculadora de Custos de Venda de Casa | Real Estate Pro Tools',
@@ -69,7 +70,13 @@ export default function SellHousePage() {
         </header>
 
         {/* Calculator Component */}
-        <SellHouseCalculator />
+        <CalculatorWrapper 
+          calculatorType="sell-house"
+          title="Calculadora de Custos de Venda"
+          description="Calcule todos os custos associados à venda do seu imóvel"
+        >
+          <SellHouseCalculator />
+        </CalculatorWrapper>
 
         {/* SEO Content Section */}
         <section className="mt-16 prose prose-lg max-w-none">

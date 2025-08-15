@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { SellHouseCalculator } from '@/components/calculators/sell-house/SellHouseCalculator'
+import { CalculatorWrapper } from '@/components/calculators/shared/CalculatorWrapper'
 import { CALCULATOR_CONFIGS } from '@/lib/calculators/config'
 
 // SEO metadata optimized for Portuguese real estate market
@@ -64,8 +65,6 @@ export const metadata: Metadata = {
 
 // Generate structured data for SEO
 function generateStructuredData() {
-  const calculator = CALCULATOR_CONFIGS['sell-house']
-  
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -233,7 +232,13 @@ export default function SellHouseCalculatorPage() {
         
         {/* Calculator Component */}
         <div className="py-12">
-          <SellHouseCalculator />
+          <CalculatorWrapper 
+            calculatorType="sell-house"
+            title="Calculadora de Custos de Venda"
+            description="Calcule todos os custos associados à venda do seu imóvel"
+          >
+            <SellHouseCalculator />
+          </CalculatorWrapper>
         </div>
         
         {/* SEO Content Below Calculator */}
